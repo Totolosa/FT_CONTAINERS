@@ -128,10 +128,13 @@
 
 int main() {
 	try {
-		ft::vector<int> test;
-		ft::vector<int>::iterator it;
-		ft::vector<int>::iterator ite;
-		std::allocator<int> alloc;
+		// std::cout << "init" << std::endl;
+		// ft::vector<int> test;
+		// ft::vector<int>::iterator it;
+		// ft::vector<int>::iterator ite;
+		ft::vector<const int> test;
+		ft::vector<const int>::const_iterator it;
+		ft::vector<const int>::const_iterator ite;
 
 		std::cout << "size = " << test.size() << ", capacity = " << test.capacity() << std::endl;
 		test.push_back(4);

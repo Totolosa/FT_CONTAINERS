@@ -24,48 +24,74 @@ namespace ft {
 			T		*_v;
 
 		public:
-			typedef T						value_type;
-			typedef Alloc					allocator_type;
-			typedef typename Alloc::reference		reference;
-			typedef typename Alloc::const_reference	const_reference;
-			typedef typename Alloc::pointer			pointer;
-			typedef typename Alloc::const_pointer	const_pointer;
-			// typedef typename iterator iterator;
-
-			vector() : _n(0), _capacity(0), _v(nullptr) {}
-			// vector(ft::vector<T> const & src) {}
-			~vector() { delete [] _v; }
 			
-			class iterator {
+			template <typename U>
+			class iter {
 				public:
-					typedef T			value_type;
-					typedef ptrdiff_t	difference_type;
-					typedef T*			pointer;
-					typedef T&			reference;
+					typedef U				value_type;
+					typedef ptrdiff_t		difference_type;
+					typedef value_type*		pointer;
+					typedef value_type&		reference;
 
-					iterator() : ptr(nullptr) {} ;
-					iterator(T & ptr) : ptr(&ptr) {} ;
+					iter() : ptr(NULL) {} ;
+					iter(value_type & ptr) : ptr(&ptr) {} ;
 
 					
 					value_type & operator*() {
-						if (this == nullptr)
+						if (ptr == NULL)
 							throw ft::PointerNull();
 						return *ptr;
 			}
 					
 				private:
-					T *ptr;
+					value_type *ptr;
 			};
 
-			iterator	begin() { return iterator(_v[0]); }
-			iterator	end() { return iterator(_v[_n]); }
+			typedef T									value_type;
+			typedef Alloc								allocator_type;
+			typedef typename Alloc::reference			reference;
+			typedef typename Alloc::const_reference		const_reference;
+			typedef typename Alloc::pointer				pointer;
+			typedef typename Alloc::const_pointer		const_pointer;
+			typedef iter<T>								iterator;
+			typedef iter<const T>						const_iterator;
+
+			vector() : _n(0), _capacity(0), _v(NULL) {}
+			// vector(ft::vector<T> const & src) {}
+			~vector() { delete [] _v; }
+			
+			
+			// template <typename U>
+			// class iter {
+			// 	public:
+			// 		typedef U			value_type;
+			// 		typedef ptrdiff_t	difference_type;
+			// 		typedef U*			pointer;
+			// 		typedef U&			reference;
+
+			// 		iter() : ptr(NULL) {} ;
+			// 		iter(U & ptr) : ptr(&ptr) {} ;
+
+					
+			// 		value_type & operator*() {
+			// 			if (this == NULL)
+			// 				throw ft::PointerNull();
+			// 			return *ptr;
+			// }
+					
+			// 	private:
+			// 		U *ptr;
+			// };
+
+			iter<T>		begin() { return iter<T>(_v[0]); }
+			iter<T>		end() { return iter<T>(_v[_n]); }
 			size_t		size() { return _n; }
 			size_t		capacity() { return _capacity; }
 			void		push_back (value_type const & val) {
 				if (_n >= _capacity && _capacity != 0) {
 					T *newV = _alloc.allocate(_capacity * 2, _v);
 					for (size_t i = 0; i < _n; i++) {
-						newV[i] = _v[i];
+						_alloc.construct(&newV[i], _v[i]);
 						_alloc.destroy(&_v[i]);
 					}
 					_alloc.deallocate(_v, _capacity);
@@ -74,7 +100,7 @@ namespace ft {
 				}
 				else if (_capacity == 0)
 					_v = _alloc.allocate(_capacity++);
-				_v[_n] = val;
+				_alloc.construct(&_v[_n], val);
 				_n++;
 			}
 
