@@ -11,7 +11,7 @@ namespace ft {
 	class PointerNull : public std::exception {
 		public :
 			virtual const char* what() const throw () {
-				return ("Pointer Null, ipossible to derive it");
+				return ("Pointer Null, iterator need to be assigned");
 			}
 	};
 
@@ -29,7 +29,7 @@ namespace ft {
 			class iter {
 				public:
 					typedef U				value_type;
-					typedef ptrdiff_t		difference_type;
+					typedef std::ptrdiff_t	difference_type;
 					typedef value_type*		pointer;
 					typedef value_type&		reference;
 
@@ -37,11 +37,27 @@ namespace ft {
 					iter(value_type & ptr) : ptr(&ptr) {} ;
 
 					
-					value_type & operator*() {
+					reference & operator*() {
 						if (ptr == NULL)
 							throw ft::PointerNull();
 						return *ptr;
-			}
+					}	
+					iter & operator++() {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						ptr++;
+						return *this;
+					}
+					iter operator++(int) {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						iter temp = *this;
+						++*this;
+						return temp;
+						// return ++ptr;
+					}
+					bool operator==(const iter& rhs) const { return ptr == rhs.ptr; }
+					bool operator!=(const iter& rhs) const { return ptr != rhs.ptr; }
 					
 				private:
 					value_type *ptr;

@@ -129,14 +129,15 @@
 int main() {
 	try {
 		// std::cout << "init" << std::endl;
-		// ft::vector<int> test;
-		// ft::vector<int>::iterator it;
-		// ft::vector<int>::iterator ite;
-		ft::vector<const int> test;
-		ft::vector<const int>::const_iterator it;
-		ft::vector<const int>::const_iterator ite;
+		ft::vector<int> test;
+		ft::vector<int>::iterator it;
+		ft::vector<int>::iterator ite;
+		// ft::vector<const int> test;
+		// ft::vector<const int>::const_iterator it;
+		// ft::vector<const int>::const_iterator ite;
 
-		std::cout << "size = " << test.size() << ", capacity = " << test.capacity() << std::endl;
+		// std::cout << "sans push_back : *it = " << *it << std::endl;
+		std::cout << "size = " << test.size() << ", capacit	y = " << test.capacity() << std::endl;
 		test.push_back(4);
 		std::cout << "size = " << test.size() << ", capacity = " << test.capacity() << std::endl;
 		test.push_back(2);
@@ -147,7 +148,8 @@ int main() {
 		ite = test.end();
 		std::cout << "it = " << *it << std::endl;
 		std::cout << "ite = " << *ite << std::endl;
-		// for (ft::vector<int>::iterator tmp = it; it != ite; it++)
+		for (ft::vector<int>::iterator tmp = it; tmp != ite; tmp++)
+			std::cout << *tmp << std::endl;
 
 		std::vector<int> lib;
 		std::vector<int>::iterator lib_it;
@@ -159,13 +161,10 @@ int main() {
 		lib.push_back(2);
 		std::cout << "capacity vector lib start = " << lib.capacity() << std::endl;
 		lib_it = lib.begin();
-		std::cout << *lib_it << std::endl;
+		std::cout << "sans push_back : *lib_it++ = " << *lib_it++ << std::endl;
+		std::cout << "lib_it = " << *lib_it << std::endl;
 		lib_it++;
-		std::cout << *lib_it << std::endl;
-		lib_it++;
-		std::cout << *lib_it << std::endl;
-		lib_it++;
-		std::cout << *lib_it << std::endl;
+		std::cout << "lib_it++ ; *lib_it = " << *lib_it << std::endl;
 		std::cout << *(lib.end()) << std::endl;
 
 		// lib_it++;
