@@ -2,7 +2,7 @@
 # define VECTOR_HPP
 
 # include <iostream>
-// # include <iterator>
+# include <iterator>
 # include <stdexcept>
 # include <memory>
 
@@ -28,19 +28,26 @@ namespace ft {
 			template <typename U>
 			class iter {
 				public:
-					typedef U				value_type;
-					typedef std::ptrdiff_t	difference_type;
-					typedef value_type*		pointer;
-					typedef value_type&		reference;
+					typedef U								value_type;
+					typedef std::ptrdiff_t					difference_type;
+					typedef value_type*						pointer;
+					typedef value_type&						reference;
+					typedef std::random_access_iterator_tag	iterator_category;
 
 					iter() : ptr(NULL) {} ;
 					iter(value_type & ptr) : ptr(&ptr) {} ;
+					iter(iter const & src) : ptr(src.ptr) {} ;
 
 					
-					reference & operator*() {
+					reference operator*() const {
 						if (ptr == NULL)
 							throw ft::PointerNull();
 						return *ptr;
+					}	
+					pointer operator->() const {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						return ptr;
 					}	
 					iter & operator++() {
 						if (ptr == NULL)
@@ -54,10 +61,38 @@ namespace ft {
 						iter temp = *this;
 						++*this;
 						return temp;
-						// return ++ptr;
 					}
-					bool operator==(const iter& rhs) const { return ptr == rhs.ptr; }
-					bool operator!=(const iter& rhs) const { return ptr != rhs.ptr; }
+					iter & operator--() {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						ptr--;
+						return *this;
+					}
+					iter operator--(int) {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						iter temp = *this;
+						--*this;
+						return temp;
+					}
+					iter operator+(difference_type const & val) const {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						return *this + val;
+					}
+					iter operator-(difference_type const & val) const {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						return *this - val;
+					}
+					iter & operator=(iter const & rhs) {
+						ptr = rhs.ptr;
+						return *this;
+					}
+					bool operator==(iter const & rhs) const { return ptr == rhs.ptr; }
+					bool operator!=(iter const & rhs) const { return ptr != rhs.ptr; }
+					bool operator>(iter const & rhs) const { return ptr > rhs.ptr; }
+					bool operator>=(iter const & rhs) const { return ptr >= rhs.ptr; }
 					
 				private:
 					value_type *ptr;
@@ -75,29 +110,6 @@ namespace ft {
 			vector() : _n(0), _capacity(0), _v(NULL) {}
 			// vector(ft::vector<T> const & src) {}
 			~vector() { delete [] _v; }
-			
-			
-			// template <typename U>
-			// class iter {
-			// 	public:
-			// 		typedef U			value_type;
-			// 		typedef ptrdiff_t	difference_type;
-			// 		typedef U*			pointer;
-			// 		typedef U&			reference;
-
-			// 		iter() : ptr(NULL) {} ;
-			// 		iter(U & ptr) : ptr(&ptr) {} ;
-
-					
-			// 		value_type & operator*() {
-			// 			if (this == NULL)
-			// 				throw ft::PointerNull();
-			// 			return *ptr;
-			// }
-					
-			// 	private:
-			// 		U *ptr;
-			// };
 
 			iter<T>		begin() { return iter<T>(_v[0]); }
 			iter<T>		end() { return iter<T>(_v[_n]); }
