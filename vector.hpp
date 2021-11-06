@@ -14,6 +14,12 @@ namespace ft {
 				return ("Pointer Null, iterator need to be assigned");
 			}
 	};
+	class VectorEmpty : public std::exception {
+		public :
+			virtual const char* what() const throw () {
+				return ("Vector empty, it need elements to use it");
+			}
+	};
 
 	template <typename T, typename Alloc = std::allocator<T> >
 	class vector {
@@ -24,7 +30,6 @@ namespace ft {
 			T		*_v;
 
 		public:
-			
 			template <typename U>
 			class iter {
 				public:
@@ -35,9 +40,9 @@ namespace ft {
 					typedef std::random_access_iterator_tag	iterator_category;
 
 					iter() : ptr(NULL) {} ;
-					iter(value_type & ptr) : ptr(&ptr) {} ;
-					iter(iter const & src) : ptr(src.ptr) {} ;
-
+					iter(pointer const & ptr) : ptr(ptr) {} ;
+					iter(iter const & src) { *this = src; } ;
+					// iter(const_iterator const & src) { *this = src; } ;
 					
 					reference operator*() const {
 						if (ptr == NULL)
@@ -75,24 +80,69 @@ namespace ft {
 						--*this;
 						return temp;
 					}
-					iter operator+(difference_type const & val) const {
+					iter operator+(int const & val) const {
 						if (ptr == NULL)
 							throw ft::PointerNull();
-						return *this + val;
+						iter tmp(ptr + val);
+						return (tmp);
 					}
-					iter operator-(difference_type const & val) const {
+					iter & operator+=(int const & val) {
 						if (ptr == NULL)
 							throw ft::PointerNull();
-						return *this - val;
+						ptr += val;
+						return (*this);
+					}
+					difference_type operator-(iter const & rhs) const {
+						if (ptr == NULL || rhs.ptr == NULL)
+							throw ft::PointerNull();
+						return ptr - rhs.ptr;
+					}
+					iter operator-(int const & val) const {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						iter tmp(ptr - val);
+						return (tmp);
+					}
+					iter & operator-=(int const & val) {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						ptr -= val;
+						return (*this);
 					}
 					iter & operator=(iter const & rhs) {
 						ptr = rhs.ptr;
 						return *this;
 					}
-					bool operator==(iter const & rhs) const { return ptr == rhs.ptr; }
-					bool operator!=(iter const & rhs) const { return ptr != rhs.ptr; }
-					bool operator>(iter const & rhs) const { return ptr > rhs.ptr; }
-					bool operator>=(iter const & rhs) const { return ptr >= rhs.ptr; }
+					bool operator==(iter const & rhs) const {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						return ptr == rhs.ptr;
+					}
+					bool operator!=(iter const & rhs) const {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						return ptr != rhs.ptr;
+					}
+					bool operator>(iter const & rhs) const {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						return ptr > rhs.ptr; 
+					}
+					bool operator>=(iter const & rhs) const {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						return ptr >= rhs.ptr;
+					}
+					bool operator<(iter const & rhs) const {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						return ptr < rhs.ptr; 
+					}
+					bool operator<=(iter const & rhs) const {
+						if (ptr == NULL)
+							throw ft::PointerNull();
+						return ptr <= rhs.ptr;
+					}
 					
 				private:
 					value_type *ptr;
@@ -108,13 +158,36 @@ namespace ft {
 			typedef iter<const T>						const_iterator;
 
 			vector() : _n(0), _capacity(0), _v(NULL) {}
-			// vector(ft::vector<T> const & src) {}
-			~vector() { delete [] _v; }
+			vector(ft::vector<T> const & src) : _n(0), _capacity(0), _v(NULL) { *this = src; }
+			// ~vector() {}
+			~vector() { 
+				for (size_t i = 0; i < _n; i++)
+					_alloc.destroy(&_v[i]);
+				_alloc.deallocate(_v, _capacity);
+			}
 
-			iter<T>		begin() { return iter<T>(_v[0]); }
-			iter<T>		end() { return iter<T>(_v[_n]); }
-			size_t		size() { return _n; }
-			size_t		capacity() { return _capacity; }
+			iterator		begin() {
+				if (_v == NULL)
+					throw VectorEmpty();
+				return iter<T>(&_v[0]);
+			}
+			const_iterator	begin() const {
+				if (_v == NULL)
+					throw VectorEmpty();
+				return iter<T>(&_v[0]);
+			}
+			iterator		end() {
+				if (_v == NULL)
+					throw VectorEmpty();
+				return iter<T>(&_v[_n]);
+			}
+			const_iterator	end() const {
+				if (_v == NULL)
+					throw VectorEmpty();
+				return iter<T>(&_v[_n]);
+			}
+			size_t		size() const { return _n; }
+			size_t		capacity() const { return _capacity; }
 			void		push_back (value_type const & val) {
 				if (_n >= _capacity && _capacity != 0) {
 					T *newV = _alloc.allocate(_capacity * 2, _v);
@@ -136,6 +209,20 @@ namespace ft {
 				if (i < 0 || i >= _n)
 					throw std::out_of_range("Wrong index of vector<T>::operator[]");
 				return _v[i];
+			}
+			vector<T> & operator=(vector<T> const & rhs) {
+				if (_v) {
+					for (size_t i = 0; i < _n; i++)
+						_alloc.destroy(&_v[i]);
+					_alloc.deallocate(_v, _capacity);
+				}
+				_n = rhs.size();
+				if (_capacity < rhs.capacity())
+					_capacity = _n;
+				_v = _alloc.allocate(_capacity);
+				for (size_t i = 0; i < _n; i++)
+					_alloc.construct(&_v[i], rhs._v[i]);
+				return *this;
 			}
 
 	};
