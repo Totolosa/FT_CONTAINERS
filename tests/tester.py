@@ -3,6 +3,7 @@ import subprocess
 import shutil
 import getopt
 import sys
+import glob
 
 class colors:
     HEADER = '\033[95m'
@@ -28,7 +29,6 @@ def main(argv):
 		map_test = True if opt == "-m" else False
 		if opt == "-d" : shutil.rmtree("results"); shutil.rmtree("bin")
 
-
 	dirs = os.listdir("tests")
 	# if "main.cpp" in dirs : dirs.remove("main.cpp")
 	# if "tester.py" in dirs : dirs.remove("tester.py")
@@ -42,8 +42,10 @@ def main(argv):
 				path_bin = ("bin/" + dir + "/" + sub_dir).replace('.cpp', '')
 				os.makedirs(path_bin, exist_ok = True)
 				os.makedirs(path_result, exist_ok = True)
-				subprocess.run(("clang++ -D MINE -Werror -Wall -Wextra -Iinc tests/main.cpp " + path_srcs_test + " -o " + path_bin + "_mine").split(), capture_output=False)
-				subprocess.run(("clang++ -Werror -Wall -Wextra -Iinc tests/main.cpp " + path_srcs_test + " -o " + path_bin + "_std").split(), capture_output=False)
+				if not os.path.exists(path_bin + "_mine") or (os.path.exists(path_bin + "_mine") and os.path.getctime(path_srcs_test) > os.path.getctime(path_bin + "_mine")):
+					subprocess.run(("clang++ -D MINE -Werror -Wall -Wextra -Iinc tests/main.cpp " + path_srcs_test + " -o " + path_bin + "_mine").split(), capture_output=False)
+				if not os.path.exists(path_bin + "_std") or (os.path.exists(path_bin + "_std") and os.path.getctime(path_srcs_test) > os.path.getctime(path_bin + "_std")):
+					subprocess.run(("clang++ -Werror -Wall -Wextra -Iinc tests/main.cpp " + path_srcs_test + " -o " + path_bin + "_std").split(), capture_output=False)
 				with open((path_result + "/diff"), "w") as outfile:
 					subprocess.run(("diff " + path_bin + "_mine " + path_bin + "_std").split(), stdout=outfile)
 				if os.path.getsize(path_result + "/diff") == 0:
