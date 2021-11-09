@@ -223,8 +223,6 @@ void tests_vector() {
 	lib_c.push_back(4);
 	std::cout << "Moi : size = " << myv.size() << ", capacity = " << myv.capacity() << std::endl;
 	std::cout << "Lib : size = " << lib.size() << ", capacity = " << lib.capacity() << std::endl << std::endl;
-	
-	
 	myv.push_back(5);
 	myv_c.push_back(5);
 	lib.push_back(5);

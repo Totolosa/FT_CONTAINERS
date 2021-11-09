@@ -20,7 +20,8 @@ CPP_FLAGS		= -Wall -Wextra -Werror -std=c++98 #-pedantic
 RM				= rm -rf
 MKDIR			= mkdir -p
 
-all				: $(NAME)
+# all				: $(NAME)
+all				: v s m
 
 $(DIR_OBJS)		:
 				$(MKDIR) $@
@@ -33,11 +34,23 @@ $(DIR_OBJS)/%.o	: %.cpp
 				@$(MKDIR) $(dir $@)
 				@$(COMPIL) $(CPP_FLAGS) -o $@ -c $< 
 
+v				:
+				@python3 tests/tester.py -v
+
+s				:
+				@python3 tests/tester.py -s
+
+m				:
+				@python3 tests/tester.py -m
+
+d				:
+				@python3 tests/tester.py -d
+
 clean:
 				${RM} $(OBJS)
 
 fclean:			clean
-				${RM} $(NAME) $(DIR_OBJS) ./*.replace
+				${RM} $(NAME) $(DIR_OBJS) results/ bin/
 				echo "${RED}XXXX CLEAN XNXX${END}"
 
 re:				fclean all

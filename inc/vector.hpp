@@ -158,8 +158,8 @@ namespace ft {
 			typedef iter<const T>						const_iterator;
 
 			vector() : _n(0), _capacity(0), _v(NULL) {}
+			// explicit vector(const allocator_type& alloc = allocator_type()) : _n(0), _capacity(0), _v(NULL) {}
 			vector(ft::vector<T> const & src) : _n(0), _capacity(0), _v(NULL) { *this = src; }
-			// ~vector() {}
 			~vector() { 
 				for (size_t i = 0; i < _n; i++)
 					_alloc.destroy(&_v[i]);
