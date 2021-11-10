@@ -1,6 +1,8 @@
 .vscode
 containers
 objs
+bin
+results
 
 # Prerequisites
 *.d
