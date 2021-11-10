@@ -44,13 +44,17 @@ def main(argv):
 				os.makedirs(path_result, exist_ok = True)
 				subprocess.run(("clang++ -D MINE -Werror -Wall -Wextra -Iinc tests/main.cpp " + path_srcs_test + " -o " + path_bin + "_mine").split(), capture_output=False)
 				subprocess.run(("clang++ -Werror -Wall -Wextra -Iinc tests/main.cpp " + path_srcs_test + " -o " + path_bin + "_std").split(), capture_output=False)
-				with open((path_result + "/diff"), "w") as outfile:
-					subprocess.run(("diff " + path_bin + "_mine " + path_bin + "_std").split(), stdout=outfile)
-				if os.path.getsize(path_result + "/diff") == 0:
+				with open((path_result + "/stdout_mine"), "w") as outfile:
+					subprocess.run((path_bin + "_mine ").split(), stdout=outfile)
+				with open((path_result + "/stdout_std"), "w") as outfile:
+					subprocess.run((path_bin + "_std").split(), stdout=outfile)
+				with open((path_result + "/diff_stdout"), "w") as outfile:
+					subprocess.run(("diff " + path_result + "/stdout_mine " + path_result + "/stdout_std").split(), stdout=outfile)
+				if os.path.getsize(path_result + "/diff_stdout") == 0:
 					print(colors.BOLD + path_result[path_result.rfind("/") + 1:] + colors.OKGREEN + " : [OK]" + colors.END)
 				else:
 					print(colors.BOLD + path_result[path_result.rfind("/") + 1:] + colors.FAIL + " : [NOK]" + colors.END)
-					with open(path_result + "/diff", "r") as diff:
+					with open(path_result + "/diff_stdout", "r") as diff:
 						print(diff.read())
 
 if __name__ == "__main__":
