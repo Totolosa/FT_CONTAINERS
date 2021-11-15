@@ -97,14 +97,23 @@ namespace ft {
 					value_type *ptr;
 			};
 
-			vector() : _n(0), _capacity(0), _v(NULL) {}
-			// explicit vector(const allocator_type& alloc = allocator_type()) : _n(0), _capacity(0), _v(NULL) {}
+			//		--> CONSTRUCTORS/DESTRUCATORS <--
+
+			explicit vector(const allocator_type& alloc = allocator_type()) : _n(0), _capacity(0), _alloc(alloc), _v(NULL) {}
+			explicit vector (size_type n, const value_type& val = value_type(),
+				const allocator_type& alloc = allocator_type()) : _n(n), _capacity(n), _alloc(alloc) ,_v(NULL) {
+					_v = _alloc.allocate(_capacity);
+					for (size_type i = 0; i < _n; i++)
+						_alloc.construct(&_v[i], val);
+				}
 			vector(ft::vector<T> const & src) : _n(0), _capacity(0), _v(NULL) { *this = src; }
 			~vector() { 
 				for (size_type i = 0; i < _n; i++)
 					_alloc.destroy(&_v[i]);
 				_alloc.deallocate(_v, _capacity);
 			}
+
+			//		--> ITERATORS <--
 
 			iterator		begin() { return iter<T>(&_v[0]); }
 			const_iterator	begin() const { return iter<T>(&_v[0]); }
@@ -160,6 +169,9 @@ namespace ft {
 			}
 			iterator insert(iterator position, size_type n, const value_type& val) {
 				difference_type offset = position - begin();
+				// if (position == end() && _n + n > _capacity)
+				// 	_realloc_capacity(_n + n);
+				// std::cout << "_capacity = " << _capacity << "_n + n = " << _n + n << std::endl;
 				while (_n + n > _capacity)
 					_realloc_capacity(_capacity * 2);
 				for (difference_type i = _n + n - 1; i >= offset + n; i--)
@@ -172,21 +184,24 @@ namespace ft {
 			// template <class InputIterator>
 			// 	void insert(iterator position, InputIterator first, InputIterator last);
 			iterator erase (iterator position) {
-				difference_type offset = position - begin();
-				// for (difference_type i = offset; i >= offset; i--)
-				// 	_alloc.construct(&_v[static_cast<int>(i)], _v[i - n]);
-				if (_n > 1)
-					for (difference_type i = offset - 1; i < _n - 1; i++) {
-						_alloc.destroy(&_v[static_cast<int>(i)]);
-						_alloc.construct(&_v[static_cast<int>(i)], _v[i + 1]);
-					}
-				_alloc.destroy(&_v[_n - 1]);
-				_n--;
-				return begin() + offset;
+				moove(position - begin(), _n - 1, 1);
+				destroy(_n - 1);
+				return begin() + (position - begin());
 			}
-			iterator erase (iterator first, iterator last);
+			iterator erase (iterator first, iterator last) {
+				moove(first - begin(), _n - (last - first), last - first);
+				destroy(_n - (last - first), _n);
+				return begin() + (first - begin());
+			}
+			void swap (vector& x) {
+				std::swap(_v, x._v);
+				std::swap(_n, x._n);
+				std::swap(_capacity, x._capacity);
+				std::swap(_alloc, x._alloc);
+			}
+			void clear() { destroy(0, _n); }
 
-
+			//		--> MODIFIERS <--
 
 			reference operator[](size_type n) { return _v[n]; }
 			const_reference operator[] (size_type n) const { return _v[n]; };
@@ -206,10 +221,10 @@ namespace ft {
 			}
 
 		private:
-			size_type	_n;
-			size_type	_capacity;
-			Alloc		_alloc;
-			T			*_v;
+			size_type		_n;
+			size_type		_capacity;
+			allocator_type	_alloc;
+			pointer			_v;
 
 			void	_realloc_capacity(size_type new_capa) {
 				T *newV = _alloc.allocate(new_capa, _v);
@@ -220,6 +235,19 @@ namespace ft {
 				_alloc.deallocate(_v, _capacity);
 				_v = newV;
 				_capacity = new_capa;
+			}
+			void destroy(size_type start, size_type end) {
+				for (size_type i = start; i < end; i++)
+					_alloc.destroy(&_v[i]);
+				_n -= end - start;
+			}
+			void destroy(size_type position) {
+				_alloc.destroy(&_v[position]);
+				_n -= 1;
+			}
+			void moove(size_type start, size_type end, size_type offset) {
+				for (size_type i = start; i < end; i++)
+					_v[i] = _v[i + offset];
 			}
 	};
 }

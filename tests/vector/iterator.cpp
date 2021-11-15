@@ -12,7 +12,7 @@ int test() {
 	vector<int>::iterator it = v.begin();
 	std::cout << *it << std::endl;
 	std::cout << it[3] << std::endl;
-	std::cout << it[-2] << std::endl << std::endl;
+	// std::cout << it[-2] << std::endl << std::endl;
 	
 	return 0;
 }
