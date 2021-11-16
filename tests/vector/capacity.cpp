@@ -1,7 +1,7 @@
 
 #include "test_vector.hpp"
 
-void test() {
+int test() {
 	vector<int> v;
 	print_vec<vector<int> >(v);
 	v.push_back(1);
@@ -35,4 +35,5 @@ void test() {
 	v.reserve(20);
 	print_vec<vector<int> >(v);
 
+	return 0;
 }

@@ -29,12 +29,12 @@ int test() {
 	v.push_back(7);
 	print_vec<vector<int> >(v);
 	vector<int>::iterator it2 = v.insert(it0, 100);
-	print_vec<vector<int> >(v);
 	std::cout << "insert it2 = " << *it2 << std::endl;
-	vector<int>::iterator it3 = v.insert(v.begin() + 7, static_cast<size_t>(11), 0);
+	print_vec<vector<int> >(v);
+	vector<int>::iterator it3 = v.insert(v.begin() + 7, static_cast<size_t>(2), 0);
 	std::cout << "insert it3 = " << *it3 << std::endl;
 	print_vec<vector<int> >(v);
-	vector<int>::iterator it4 = v.insert(v.begin() + 19, static_cast<size_t>(3), 666);
+	vector<int>::iterator it4 = v.insert(v.end(), static_cast<size_t>(20), 666);
 	std::cout << "insert it4 = " << *it4 << std::endl;
 	print_vec<vector<int> >(v);
 

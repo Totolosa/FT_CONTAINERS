@@ -159,6 +159,8 @@ namespace ft {
 			}
 			iterator insert(iterator position, const value_type& val) {
 				difference_type offset = position - begin();
+				if (_capacity == 0)
+					_v = _alloc.allocate(_capacity++);
 				if (_n == _capacity)
 					_realloc_capacity(_capacity * 2);
 				for (difference_type i = _n; i > offset; i--)
@@ -169,10 +171,9 @@ namespace ft {
 			}
 			iterator insert(iterator position, size_type n, const value_type& val) {
 				difference_type offset = position - begin();
-				// if (position == end() && _n + n > _capacity)
-				// 	_realloc_capacity(_n + n);
-				// std::cout << "_capacity = " << _capacity << "_n + n = " << _n + n << std::endl;
-				while (_n + n > _capacity)
+				if (n + _n > _capacity * 2)
+					_realloc_capacity(_capacity + n);
+				else if (n + _n > _capacity)
 					_realloc_capacity(_capacity * 2);
 				for (difference_type i = _n + n - 1; i >= offset + n; i--)
 					_alloc.construct(&_v[static_cast<int>(i)], _v[i - n]);
