@@ -8,6 +8,14 @@
 # include "is_integral.hpp"
 # include "enable_if.hpp"
 
+template <typename C>
+void print_vec_inside(C & cont) {
+	for (typename C::size_type i = 0; i < cont.size(); i++)
+		std::cout << cont[i] << "|";
+	std::cout << std::endl << "size = " << cont.size() << std::endl;
+	std::cout << "capacity = " << cont.capacity() << std::endl << std::endl;
+}
+
 namespace ft {
 
 	template <typename T, typename Alloc = std::allocator<T> >
@@ -159,13 +167,24 @@ namespace ft {
 			}
 			iterator insert(iterator position, const value_type& val) {
 				difference_type offset = position - begin();
+				// std::cout << "offset = " << offset << std::endl;
+				// value_type tmp;
+				// _alloc.construct(&tmp, val);
 				if (_capacity == 0)
 					_v = _alloc.allocate(_capacity++);
 				if (_n == _capacity)
 					_realloc_capacity(_capacity * 2);
-				for (difference_type i = _n; i > offset; i--)
-					_alloc.construct(&_v[static_cast<int>(i)], _v[i - 1]);
-				_alloc.construct(&_v[static_cast<int>(offset)], val);
+				for (difference_type i = _n; i > offset; i--) {
+					_alloc.destroy(&_v[i]);
+					_alloc.construct(&_v[i], _v[i - 1]);
+				// std::cout << "val insert =" << val << std::endl;
+				// 	std::cout << "*it = " << *(begin() + i) << "i = " << i << std::endl;
+				// 	print_vec_inside<vector<value_type> >(*this);
+				}
+
+				_alloc.destroy(&_v[offset]);
+				_alloc.construct(&_v[offset], val);
+				// (void)val;
 				_n++;
 				return begin() + offset;
 			}
@@ -176,9 +195,9 @@ namespace ft {
 				else if (n + _n > _capacity)
 					_realloc_capacity(_capacity * 2);
 				for (difference_type i = _n + n - 1; i >= offset + n; i--)
-					_alloc.construct(&_v[static_cast<int>(i)], _v[i - n]);
+					_alloc.construct(&_v[i], _v[i - n]);
 				for (difference_type i = offset + n - 1; i >= offset; i--)
-					_alloc.construct(&_v[static_cast<int>(i)], val);
+					_alloc.construct(&_v[i], val);
 				_n += n;
 				return begin() + offset;
 			}
