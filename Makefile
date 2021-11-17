@@ -21,7 +21,8 @@ RM				= rm -rf
 MKDIR			= mkdir -p
 
 # all				: $(NAME)
-all				: v s m
+all				: 
+				@python3 TESTER_CONTAINERS42/tester.py
 
 $(DIR_OBJS)		:
 				$(MKDIR) $@
@@ -35,16 +36,16 @@ $(DIR_OBJS)/%.o	: %.cpp
 				@$(COMPIL) $(CPP_FLAGS) -o $@ -c $< 
 
 v				:
-				@python3 tests/tester.py -v
+				@python3 TESTER_CONTAINERS42/tester.py -v
 
 s				:
-				@python3 tests/tester.py -s
+				@python3 TESTER_CONTAINERS42/tester.py -s
 
 m				:
-				@python3 tests/tester.py -m
+				@python3 TESTER_CONTAINERS42/tester.py -m
 
 d				:
-				@python3 tests/tester.py -d
+				@python3 TESTER_CONTAINERS42/tester.py -d
 
 clean:
 				${RM} $(OBJS)
