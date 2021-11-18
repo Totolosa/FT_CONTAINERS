@@ -46,8 +46,10 @@ namespace ft {
 
 					iter() : ptr(NULL) {} ;
 					iter(pointer const & ptr) : ptr(ptr) {} ;
-					iter(iter const & src) { *this = src; } ;
-					// iter(const_iterator const & src) { *this = src; } ;
+					// iter(const_pointer const & ptr) : ptr(ptr) {} ;
+					iter(iterator const & src) { *this = src; } ;
+					iter(const_iterator const & src) { *this = src; } ;
+					
 					
 					reference operator*() const { return *ptr; }	
 					pointer operator->() const { return ptr; }	
@@ -93,6 +95,15 @@ namespace ft {
 						ptr = rhs.ptr;
 						return *this;
 					}
+					template <typename R>
+					iter & operator=(iter<R> & rhs) {
+						ptr = rhs.ptr;
+						return *this;
+					}
+					// iter & operator=(iter const & rhs) {
+					// 	ptr = rhs.ptr;
+					// 	return *this;
+					// }
 					reference operator[](int const & val) { return *(ptr + val); }
 					bool operator==(iter const & rhs) const { return ptr == rhs.ptr; }
 					bool operator!=(iter const & rhs) const { return ptr != rhs.ptr; }
@@ -105,16 +116,27 @@ namespace ft {
 					value_type *ptr;
 			};
 
-			//		--> CONSTRUCTORS/DESTRUCATORS <--
+			//		--> CONSTRUCTORS/DESTRUCTORS <--
 
 			explicit vector(const allocator_type& alloc = allocator_type()) : _n(0), _capacity(0), _alloc(alloc), _v(NULL) {}
 			explicit vector (size_type n, const value_type& val = value_type(),
 				const allocator_type& alloc = allocator_type()) : _n(n), _capacity(n), _alloc(alloc) ,_v(NULL) {
-					_v = _alloc.allocate(_capacity);
-					for (size_type i = 0; i < _n; i++)
-						_alloc.construct(&_v[i], val);
-				}
+				_v = _alloc.allocate(_capacity);
+				for (size_type i = 0; i < _n; i++)
+					_alloc.construct(&_v[i], val);
+			}
 			vector(ft::vector<T> const & src) : _n(0), _capacity(0), _v(NULL) { *this = src; }
+			template <class InputIterator>
+			vector (typename enable_if< (is_same<InputIterator, pointer>::value || is_same<InputIterator, const_pointer>::value || is_same<InputIterator, iterator>::value || is_same<InputIterator, const_iterator>::value), InputIterator>::type first
+			, InputIterator last
+			, const allocator_type& alloc = allocator_type()) : _n(last - first), _capacity(_n), _alloc(alloc), _v(NULL) {
+				// std::cout << "TESSST" << std::endl;
+				_v = _alloc.allocate(_capacity);
+					for (InputIterator it = first; it != last; it++)
+						_alloc.construct(&_v[it - first], *it);
+					// for (size_type i = 0; i < last - first; i++)
+					// 	_alloc.construct(&_v[i], *(first + i));
+			}
 			~vector() { 
 				for (size_type i = 0; i < _n; i++)
 					_alloc.destroy(&_v[i]);
@@ -123,10 +145,10 @@ namespace ft {
 
 			//		--> ITERATORS <--
 
-			iterator		begin() { return iter<T>(&_v[0]); }
-			const_iterator	begin() const { return iter<T>(&_v[0]); }
-			iterator		end() { return iter<T>(&_v[_n]); }
-			const_iterator	end() const { return iter<T>(&_v[_n]); }
+			iterator		begin() { return iterator(&_v[0]); }
+			const_iterator	begin() const { return const_iterator(&_v[0]); }
+			iterator		end() { return iterator(&_v[_n]); }
+			const_iterator	end() const { return const_iterator(&_v[_n]); }
 			
 			//		--> CAPACITY <--
 
@@ -150,7 +172,7 @@ namespace ft {
 				}
 				_n = n;
 			}
-			
+
 			//		--> MODIFIERS <--
 
 			void push_back(const value_type& val) {
@@ -167,24 +189,17 @@ namespace ft {
 			}
 			iterator insert(iterator position, const value_type& val) {
 				difference_type offset = position - begin();
-				// std::cout << "offset = " << offset << std::endl;
-				// value_type tmp;
-				// _alloc.construct(&tmp, val);
 				if (_capacity == 0)
 					_v = _alloc.allocate(_capacity++);
 				if (_n == _capacity)
 					_realloc_capacity(_capacity * 2);
 				for (difference_type i = _n; i > offset; i--) {
-					_alloc.destroy(&_v[i]);
+					if (i != _n)
+						_alloc.destroy(&_v[i]);
 					_alloc.construct(&_v[i], _v[i - 1]);
-				// std::cout << "val insert =" << val << std::endl;
-				// 	std::cout << "*it = " << *(begin() + i) << "i = " << i << std::endl;
-				// 	print_vec_inside<vector<value_type> >(*this);
 				}
-
 				_alloc.destroy(&_v[offset]);
 				_alloc.construct(&_v[offset], val);
-				// (void)val;
 				_n++;
 				return begin() + offset;
 			}
@@ -194,10 +209,16 @@ namespace ft {
 					_realloc_capacity(_capacity + n);
 				else if (n + _n > _capacity)
 					_realloc_capacity(_capacity * 2);
-				for (difference_type i = _n + n - 1; i >= offset + n; i--)
+				for (difference_type i = _n + n - 1; i >= offset + n; i--) {
+					if (i < _n)
+						_alloc.destroy(&_v[i]);
 					_alloc.construct(&_v[i], _v[i - n]);
-				for (difference_type i = offset + n - 1; i >= offset; i--)
+				}
+				for (difference_type i = offset + n - 1; i >= offset; i--) {
+					if (i < _n)
+						_alloc.destroy(&_v[i]);
 					_alloc.construct(&_v[i], val);
+				}
 				_n += n;
 				return begin() + offset;
 			}
@@ -221,7 +242,27 @@ namespace ft {
 			}
 			void clear() { destroy(0, _n); }
 
-			//		--> MODIFIERS <--
+			//		--> ACCESS <--
+
+			reference at (size_type n) {
+				if (n >= _n || n < 0)
+					throw std::out_of_range("vector");
+				return _v[n];
+			}
+			const_reference at (size_type n) const {
+				if (n >= _n || n < 0)
+					throw std::out_of_range("vector");
+				return _v[n];
+			}
+			reference front() { return _v[0]; }
+			const_reference front() const { return _v[0]; }
+			reference back() { return _v[_n - 1]; }
+			const_reference back() const { return _v[_n - 1]; }
+
+			//		--> ALLOCATOR <--
+			allocator_type get_allocator() const { return _alloc; }
+
+			//		--> OPERATORS <--
 
 			reference operator[](size_type n) { return _v[n]; }
 			const_reference operator[] (size_type n) const { return _v[n]; };
