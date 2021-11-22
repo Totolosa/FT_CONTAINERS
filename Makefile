@@ -44,6 +44,9 @@ s				:
 m				:
 				@python3 TESTER_CONTAINERS42/tester.py -m
 
+o				:
+				@python3 TESTER_CONTAINERS42/tester.py -o
+
 d				:
 				@python3 TESTER_CONTAINERS42/tester.py -d
 

@@ -7,6 +7,7 @@
 # include <memory>
 # include "is_integral.hpp"
 # include "enable_if.hpp"
+# include "equal.hpp"
 
 template <typename C>
 void print_vec_inside(C & cont) {
@@ -49,6 +50,7 @@ namespace ft {
 					// iter(const_pointer const & ptr) : ptr(ptr) {} ;
 					iter(iterator const & src) { *this = src; } ;
 					iter(const_iterator const & src) { *this = src; } ;
+					// iter(value_type const & val) { }
 					
 					
 					reference operator*() const { return *ptr; }	
@@ -95,11 +97,11 @@ namespace ft {
 						ptr = rhs.ptr;
 						return *this;
 					}
-					template <typename R>
-					iter & operator=(iter<R> & rhs) {
-						ptr = rhs.ptr;
-						return *this;
-					}
+					// template <typename R>
+					// iter & operator=(iter<R> & rhs) {
+					// 	ptr = rhs.ptr;
+					// 	return *this;
+					// }
 					// iter & operator=(iter const & rhs) {
 					// 	ptr = rhs.ptr;
 					// 	return *this;
@@ -112,8 +114,10 @@ namespace ft {
 					bool operator<(iter const & rhs) const { return ptr < rhs.ptr;  }
 					bool operator<=(iter const & rhs) const { return ptr <= rhs.ptr; }
 					
+					// operator iter<const U>() const { return (iter<const U>(this->ptr)); }
+
 				private:
-					value_type *ptr;
+					pointer ptr;
 			};
 
 			//		--> CONSTRUCTORS/DESTRUCTORS <--
@@ -280,6 +284,30 @@ namespace ft {
 					_alloc.construct(&_v[i], rhs._v[i]);
 				return *this;
 			}
+			// template <class V, class Alloc2>
+			// friend bool operator== (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v == rhs._v); }
+			friend bool operator== (const vector& lhs, const vector& rhs) { 
+				if (lhs.empty() && rhs.empty())
+					return true;
+				else if (lhs.empty() || rhs.empty())
+					return false;
+				return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
+			}
+			// template <class V, class Alloc2>
+			// friend bool operator!= (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v != rhs._v); }
+			friend bool operator!= (const vector& lhs, const vector& rhs) { return !(lhs._v == rhs._v); }
+			// template <class V, class Alloc2>
+			// friend bool operator<  (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v < rhs._v); }
+			// friend bool operator<  (const vector& lhs, const vector& rhs) { return (lhs._v < rhs._v); }
+			// template <class V, class Alloc2>
+			// friend bool operator<= (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v <= rhs._v); }
+			// friend bool operator<= (const vector& lhs, const vector& rhs) { return (lhs._v <= rhs._v); }
+			// template <class V, class Alloc2>
+			// friend bool operator>  (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v > rhs._v); }
+			// friend bool operator>  (const vector& lhs, const vector& rhs) { return (lhs._v > rhs._v); }
+			// template <class V, class Alloc2>
+			// friend bool operator>= (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v >= rhs._v); }
+			// friend bool operator>= (const vector& lhs, const vector& rhs) { return (lhs._v >= rhs._v); }
 
 		private:
 			size_type		_n;
