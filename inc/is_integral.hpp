@@ -1,3 +1,6 @@
+#ifndef IS_INTEGRAL_HPP
+# define IS_INTEGRAL_HPP
+
 namespace ft {
 
 	struct true_type {
@@ -42,3 +45,5 @@ namespace ft {
 	template <>
 	struct is_integral<unsigned long long int> : true_type {};
 }
+
+#endif

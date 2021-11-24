@@ -8,6 +8,7 @@
 # include "is_integral.hpp"
 # include "enable_if.hpp"
 # include "equal.hpp"
+# include "lexicographical_compare.hpp"
 
 template <typename C>
 void print_vec_inside(C & cont) {
@@ -83,7 +84,7 @@ namespace ft {
 					}
 					difference_type operator-(iter const & rhs) const {
 					
-					return ptr - rhs.ptr; 
+					return ptr - rhs.operator->(); 
 					}
 					iter operator-(int const & val) const {
 						iter tmp(ptr - val);
@@ -94,7 +95,7 @@ namespace ft {
 						return (*this);
 					}
 					iter & operator=(iter const & rhs) {
-						ptr = rhs.ptr;
+						ptr = rhs.operator->();
 						return *this;
 					}
 					// template <typename R>
@@ -116,7 +117,7 @@ namespace ft {
 					
 					// operator iter<const U>() const { return (iter<const U>(this->ptr)); }
 
-				private:
+				protected:
 					pointer ptr;
 			};
 
@@ -284,30 +285,19 @@ namespace ft {
 					_alloc.construct(&_v[i], rhs._v[i]);
 				return *this;
 			}
-			// template <class V, class Alloc2>
-			// friend bool operator== (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v == rhs._v); }
+
 			friend bool operator== (const vector& lhs, const vector& rhs) { 
 				if (lhs.empty() && rhs.empty())
 					return true;
-				else if (lhs.empty() || rhs.empty())
+				else if (lhs.size() != rhs.size() )
 					return false;
 				return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
 			}
-			// template <class V, class Alloc2>
-			// friend bool operator!= (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v != rhs._v); }
-			friend bool operator!= (const vector& lhs, const vector& rhs) { return !(lhs._v == rhs._v); }
-			// template <class V, class Alloc2>
-			// friend bool operator<  (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v < rhs._v); }
-			// friend bool operator<  (const vector& lhs, const vector& rhs) { return (lhs._v < rhs._v); }
-			// template <class V, class Alloc2>
-			// friend bool operator<= (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v <= rhs._v); }
-			// friend bool operator<= (const vector& lhs, const vector& rhs) { return (lhs._v <= rhs._v); }
-			// template <class V, class Alloc2>
-			// friend bool operator>  (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v > rhs._v); }
-			// friend bool operator>  (const vector& lhs, const vector& rhs) { return (lhs._v > rhs._v); }
-			// template <class V, class Alloc2>
-			// friend bool operator>= (const vector<V,Alloc2>& lhs, const vector<V,Alloc2>& rhs) { return (lhs._v >= rhs._v); }
-			// friend bool operator>= (const vector& lhs, const vector& rhs) { return (lhs._v >= rhs._v); }
+			friend bool operator!= (const vector& lhs, const vector& rhs) { return !(lhs == rhs); }
+			friend bool operator<  (const vector& lhs, const vector& rhs) { return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end())); }
+			friend bool operator<= (const vector& lhs, const vector& rhs) { return ((lhs < rhs) || (lhs == rhs)); }
+			friend bool operator>  (const vector& lhs, const vector& rhs) { return (!(lhs < rhs) && (lhs != rhs)); }
+			friend bool operator>= (const vector& lhs, const vector& rhs) { return !(lhs < rhs); }
 
 		private:
 			size_type		_n;

@@ -1,3 +1,7 @@
+#ifndef ENABLE_IF_HPP
+# define ENABLE_IF_HPP
+
+
 namespace ft {
 
 	template<bool Cond, typename T = void>
@@ -11,3 +15,5 @@ namespace ft {
 	struct is_same<T, T> { static const bool value = true; };
 }
 
+
+#endif
