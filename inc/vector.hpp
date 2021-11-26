@@ -51,9 +51,8 @@ namespace ft {
 
 					iter() : ptr(NULL) {} ;
 					iter(pointer const & ptr) : ptr(ptr) {} ;
-					// iter(const_pointer const & ptr) : ptr(ptr) {} ;
-					iter(iterator const & src) { *this = src; } ;
-					iter(const_iterator const & src) { *this = src; } ;
+					template <typename V>
+					iter(iter<V> const & src) { *this = src; } ;
 					
 					reference operator*() const { return *ptr; }	
 					pointer operator->() const { return ptr; }	
@@ -95,7 +94,8 @@ namespace ft {
 						ptr -= val;
 						return (*this);
 					}
-					iter & operator=(iter const & rhs) {
+					template <typename V>
+					iter & operator=(iter<V> const & rhs) {
 						ptr = rhs.operator->();
 						return *this;
 					}
@@ -107,7 +107,6 @@ namespace ft {
 					friend bool operator<(iter const & lhs, iter const & rhs) { return lhs.ptr < rhs.ptr;  }
 					friend bool operator<=(iter const & lhs, iter const & rhs) { return lhs.ptr <= rhs.ptr; }
 					friend iter operator+(difference_type n, iter const & rhs) { return iter(rhs.ptr + n); }
-					// friend difference_type operator-(iter const & lhs, iter const & rhs) { return rhs.ptr - lhs._current; }
 
 				protected:
 					pointer ptr;
@@ -220,8 +219,29 @@ namespace ft {
 				_n += n;
 				return begin() + offset;
 			}
-			// template <class InputIterator>
-			// 	void insert(iterator position, InputIterator first, InputIterator last);
+			template <class InputIterator>
+			void insert(iterator position, typename enable_if< (is_same<InputIterator, pointer>::value 
+				|| is_same<InputIterator, const_pointer>::value || is_same<InputIterator, iterator>::value
+				|| is_same<InputIterator, const_iterator>::value), InputIterator>::type first
+				, InputIterator last) {
+				difference_type offset = position - begin();
+				difference_type n = last - first;
+				if (n + _n > _capacity * 2)
+					_realloc_capacity(_capacity + n);
+				else if (n + _n > _capacity)
+					_realloc_capacity(_capacity * 2);
+				for (difference_type i = _n + n - 1; i >= offset + n; i--) {
+					if (i < _n)
+						_alloc.destroy(&_v[i]);
+					_alloc.construct(&_v[i], _v[i - n]);
+				}
+				for (difference_type i = offset + n - 1; i >= offset; i--) {
+					if (i < _n)
+						_alloc.destroy(&_v[i]);
+					_alloc.construct(&_v[i], *(last - 1 + (i - offset - n + 1)));
+				}
+				_n += n;
+			}
 			iterator erase (iterator position) {
 				moove(position - begin(), _n - 1, 1);
 				destroy(_n - 1);

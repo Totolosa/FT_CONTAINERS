@@ -52,7 +52,8 @@ namespace ft {
 				_current += val;
 				return (*this);
 			}
-			reverse_iterator & operator=(reverse_iterator const & rhs) {
+			template <typename U>
+			reverse_iterator & operator=(reverse_iterator<U> const & rhs) {
 				_current = rhs.operator->();
 				return *this;
 			}
