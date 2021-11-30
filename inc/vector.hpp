@@ -10,6 +10,7 @@
 # include "equal.hpp"
 # include "lexicographical_compare.hpp"
 # include "reverse_iterator.hpp"
+# include "random_access_iterator.hpp"
 
 template <typename C>
 void print_vec_inside(C & cont) {
@@ -33,84 +34,12 @@ namespace ft {
 			typedef typename Alloc::const_reference			const_reference;
 			typedef typename Alloc::pointer					pointer;
 			typedef typename Alloc::const_pointer			const_pointer;
-			typedef iter<T>									iterator;
-			typedef iter<const T>							const_iterator;
+			typedef ft::random_access_iterator<T>			iterator;
+			typedef ft::random_access_iterator<const T>							const_iterator;
 			typedef ft::reverse_iterator<iterator>			reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 			typedef typename Alloc::difference_type			difference_type;
 			typedef typename Alloc::difference_type			size_type;
-
-			template <typename U>
-			class iter {
-				public:
-					typedef U								value_type;
-					typedef std::ptrdiff_t					difference_type;
-					typedef value_type*						pointer;
-					typedef value_type&						reference;
-					typedef std::random_access_iterator_tag	iterator_category;
-
-					iter() : ptr(NULL) {} ;
-					iter(pointer const & ptr) : ptr(ptr) {} ;
-					template <typename V>
-					iter(iter<V> const & src) { *this = src; } ;
-					
-					reference operator*() const { return *ptr; }	
-					pointer operator->() const { return ptr; }	
-					iter & operator++() {
-						ptr++;
-						return *this;
-					}
-					iter operator++(int) {
-						iter temp = *this;
-						++*this;
-						return temp; 
-					}
-					iter & operator--() {
-						ptr--;
-						return *this; 
-					}
-					iter operator--(int) {
-						iter temp = *this;
-						--*this;
-						return temp; 
-					}
-					iter operator+(int const & val) const {
-						iter tmp(ptr + val);
-						return (tmp); 
-					}
-					iter & operator+=(int const & val) {
-						ptr += val;
-						return (*this);
-					}
-					difference_type operator-(iter const & rhs) const {
-					
-					return ptr - rhs.operator->(); 
-					}
-					iter operator-(int const & val) const {
-						iter tmp(ptr - val);
-						return (tmp); 
-					}
-					iter & operator-=(int const & val) {
-						ptr -= val;
-						return (*this);
-					}
-					template <typename V>
-					iter & operator=(iter<V> const & rhs) {
-						ptr = rhs.operator->();
-						return *this;
-					}
-					reference operator[](int const & val) { return *(ptr + val); }
-					friend bool operator==(iter const & lhs, iter const & rhs) { return lhs.ptr == rhs.ptr; }
-					friend bool operator!=(iter const & lhs, iter const & rhs) { return lhs.ptr != rhs.ptr; }
-					friend bool operator>(iter const & lhs, iter const & rhs) { return lhs.ptr > rhs.ptr;  }
-					friend bool operator>=(iter const & lhs, iter const & rhs) { return lhs.ptr >= rhs.ptr; }
-					friend bool operator<(iter const & lhs, iter const & rhs) { return lhs.ptr < rhs.ptr;  }
-					friend bool operator<=(iter const & lhs, iter const & rhs) { return lhs.ptr <= rhs.ptr; }
-					friend iter operator+(difference_type n, iter const & rhs) { return iter(rhs.ptr + n); }
-
-				protected:
-					pointer ptr;
-			};
 
 			//		--> CONSTRUCTORS/DESTRUCTORS <--
 
@@ -235,10 +164,11 @@ namespace ft {
 						_alloc.destroy(&_v[i]);
 					_alloc.construct(&_v[i], _v[i - n]);
 				}
-				for (difference_type i = offset + n - 1; i >= offset; i--) {
+				for (difference_type i = offset; first != last; i++) {
 					if (i < _n)
 						_alloc.destroy(&_v[i]);
-					_alloc.construct(&_v[i], *(last - 1 + (i - offset - n + 1)));
+					_alloc.construct(&_v[i], *first);
+					first++;
 				}
 				_n += n;
 			}
