@@ -50,11 +50,14 @@ o				:
 d				:
 				@python3 TESTER_CONTAINERS42/tester.py -d
 
+test			:
+				@$(COMPIL) $(CPP_FLAGS) -g3 -fsanitize=address zmy_tests/main.cpp -Iinc ; ./a.out ; rm a.out
+
 clean:
 				${RM} $(OBJS)
 
 fclean:			clean
-				${RM} $(NAME) $(DIR_OBJS) results/ bin/
+				${RM} $(NAME) $(DIR_OBJS) zmy_tests/test
 				echo "${RED}XXXX CLEAN XNXX${END}"
 
 re:				fclean all
