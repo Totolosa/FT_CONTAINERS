@@ -129,7 +129,7 @@ namespace ft {
 				_n++;
 				return begin() + offset;
 			}
-			iterator insert(iterator position, size_type n, const value_type& val) {
+			void insert(iterator position, size_type n, const value_type& val) {
 				difference_type offset = position - begin();
 				if (n + _n > _capacity * 2)
 					_realloc_capacity(_capacity + n);
@@ -146,7 +146,6 @@ namespace ft {
 					_alloc.construct(&_v[i], val);
 				}
 				_n += n;
-				return begin() + offset;
 			}
 			template <class InputIterator>
 			void insert(iterator position, typename enable_if< (is_same<InputIterator, pointer>::value 

@@ -19,10 +19,10 @@ namespace ft {
 			template <typename V>
 			map_iterator(map_iterator<V> const & src) { *this = src; }
 			
-			reference operator*() const { return (*ptr).data; }	
-			// pointer operator->() const { return ; }	
+			reference operator*() const { return ptr->data; }	
+			pointer operator->() const { return &(ptr->data); }	
 			// map_iterator & operator++() {
-			// 	ptr = ptr++;
+			// 	ptr = ptr->;
 			// 	return *this;
 			// }
 			// map_iterator operator++(int) {

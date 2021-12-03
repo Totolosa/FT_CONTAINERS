@@ -8,7 +8,8 @@
 # include "map_iterator.hpp"
 # include "reverse_iterator.hpp"
 # include "Node.hpp"
-# include <map>
+# include "BST.hpp"
+// # include <map>
 
 template <typename C>
 void print_map_inside(C & cont) {
@@ -45,7 +46,7 @@ namespace ft {
 
 			//		--> CONSTRUCTORS/DESTRUCTORS <--
 			explicit map (const key_compare& comp = key_compare(),
-				const allocator_type& alloc = allocator_type()) : _n(0), _comp(comp), _alloc(alloc), tree(NULL), nal(node_all()) {}
+				const allocator_type& alloc = allocator_type()) : _n(0), _comp(comp), _alloc(alloc), tree(NULL) {}
 
 			//		--> ITERATORS <--
 
@@ -81,8 +82,11 @@ namespace ft {
 			//		--> MODIFIERS <--
 
 			pair<iterator,bool> insert (const value_type& val) {
-				if (!tree)
+				if (!tree) {
+					tree = nal.allocate(1);
 					nal.construct(tree, node(val));
+					return (ft::make_pair(iterator(tree), true));
+				}
 				node *tmp = tree;
 				while (tmp != NULL) {
 					if (val.first < tmp->data.first)
@@ -92,6 +96,7 @@ namespace ft {
 					else
 						return (ft::make_pair(iterator(tmp), false));
 				}
+				tmp = nal.allocate(1);
 				nal.construct(tmp, node(val));
 				_n++;
 				return (ft::make_pair(iterator(tmp), true));
@@ -112,6 +117,7 @@ namespace ft {
 			Compare				_comp;
 			allocator_type		_alloc;
 			node				*tree;
+			// node				*end;
 			node_all			nal;
 
 	};
