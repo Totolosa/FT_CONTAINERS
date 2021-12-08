@@ -7,57 +7,96 @@
 # include "map_iterator.hpp"
 
 template <typename T, typename Key, typename Compare = std::less<Key>, typename Alloc = std::allocator<T> >
-class _Tree {
+class BST {
 	public:
 		typedef T												value_type;
 		typedef Key												key_type;
 		typedef Compare											key_compare;
 		typedef Alloc											allocator_type;
-		typedef ft::Node<T>										node;
+		typedef ft::Node<value_type>							node;
+		typedef node*											node_pointer;
 		typedef typename Alloc::template rebind<node>::other	node_alloc;
+		typedef ft::map_iterator<ft::Node<value_type> >			iterator;
+		typedef ft::map_iterator<ft::Node<const value_type> >	const_iterator;
+		typedef ft::reverse_iterator<iterator>					reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
-		_Tree(const key_compare& comp = key_compare(),
-			const allocator_type& alloc = allocator_type()) : _n(0), _tree(NULL), _nal(node_alloc()), _comp(comp), _tal(alloc) {}
+		BST(const key_compare& comp = key_compare(),
+			const allocator_type& alloc = allocator_type()) : _n(), _root(NULL), _nal(), _comp(comp), _tal(alloc) {
+				_begin = _nal.allocate(1);
+				_nal.construct(_begin, node());
+				_end = _nal.allocate(1);
+				_nal.construct(_end, node());
+			}
 
-		ft::pair< *node, bool> insert (const value_type& val) {
-			return _insert(_tree, val);
+		ft::pair< iterator, bool> insert (const value_type& val) {
+			return _insert(_root, val);
+		}
+		bool empty() const { return _n == 0; }
+		bool size() const { return _n; }
+
+		iterator begin() { 
+			return iterator(_begin)++;
+		}
+		const_iterator begin() const {
+			return iterator(_begin)++;
+		}
+		iterator end() { 
+			return iterator(_end);
+		}
+		const_iterator end() const {
+			return iterator(_end);
 		}
 		
 
 	private:
-		ft::pair< *node, bool> _insert (node *tmp, const value_type& val) {
-			if (!_tree) {
-				_tree = _nal.allocate(1);
-				_nal.construct(_tree, node(val));
+		ft::pair< iterator, bool> _insert (node_pointer &tmp, const value_type& val) {
+			if (!tmp || tmp == _begin || tmp == _end) {
+				node_pointer newnode = _nal.allocate(1);
+				_nal.construct(newnode, node(val));
+				if (!tmp)
+					_insert_node(newnode, tmp);
+				else if (tmp == _begin)
+					_set_begin(newnode, tmp->p);
+				else if (tmp == _end)
+					_set_end(newnode, tmp->p);
 				_n++;
-				return (ft::make_pair(_tree, true));
+				return (ft::make_pair(iterator(newnode), true));
 			}
-			if (_comp(val.first, tmp->data.first))
-				_insert(tmp->l, val);
+			else if (_comp(val.first, tmp->data.first))
+				return _insert(tmp->l, val);
 			else if (tmp->data.first < val.first)
-				_insert(tmp->r, val);
-			// 		tmp = tmp->l;
-			// 	else if (tmp->data.first < val.first)
-			// 		tmp = tmp->r;
-			// 	else
-			// 		return (ft::make_pair(tmp, false));
-			// node *tmp = _tree;
-			// while (tmp != NULL) {
-			// 	if (val.first < tmp->data.first)
-			// 		tmp = tmp->l;
-			// 	else if (tmp->data.first < val.first)
-			// 		tmp = tmp->r;
-			// 	else
-			// 		return (ft::make_pair(tmp, false));
-			// }
-			// tmp = _nal.allocate(1);
-			// _nal.construct(tmp, node(val));
-			// _n++;
-			// return (ft::make_pair(tmp, true));
+				return _insert(tmp->r, val);
+			else
+				return (ft::make_pair(iterator(tmp), false));
+		}
+		void _insert_node(node_pointer &newnode, node_pointer &parent) {
+			newnode->p = parent;
+			parent = newnode;
+			if (_n == 0) {
+				newnode->l = _begin;
+				_begin->p = newnode;
+				newnode->r = _end;
+				_end->p = newnode;
+			}
+		}
+		void _set_begin(node_pointer &newnode, node_pointer &parent) {
+			parent->l = newnode;
+			newnode->p = parent;
+			newnode->l = _begin;
+			_begin->p = newnode;
+		}
+		void _set_end(node_pointer &newnode, node_pointer &parent) {
+			parent->r = newnode;
+			newnode->p = parent;
+			newnode->r = _end;
+			_end->p = newnode;
 		}
 
 		size_t			_n;
-		node			*_tree;
+		node			*_root;
+		node			*_begin;
+		node			*_end;
 		node_alloc		_nal;
 		Compare			_comp;
 		allocator_type	_tal;

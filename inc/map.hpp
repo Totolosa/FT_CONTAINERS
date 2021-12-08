@@ -46,65 +46,37 @@ namespace ft {
 
 			//		--> CONSTRUCTORS/DESTRUCTORS <--
 			explicit map (const key_compare& comp = key_compare(),
-				const allocator_type& alloc = allocator_type()) : _n(0), _comp(comp), _alloc(alloc), tree(NULL) {}
+				const allocator_type& alloc = allocator_type()) : _comp(comp), _alloc(alloc), _tree() {}
 
 			//		--> ITERATORS <--
 
-			iterator begin() { 
-				node *tmp = tree;
-				if (tmp)
-					while (tmp->l)
-						tmp = *(tmp->l);
-				return iterator(tmp);
-			}
-			const_iterator begin() const {
-				node *tmp = tree;
-				if (tmp)
-					while (tmp->l)
-						tmp = *(tmp->l);
-				return iterator(tmp);
-			}
-			iterator end() { 
-				node *tmp = tree;
-				if (tmp)
-					while (tmp->r)
-						tmp = tmp->r;
-				return iterator(tmp->r);
-			}
-			const_iterator end() const {
-				node *tmp = tree;
-				if (tmp)
-					while (tmp->r)
-						tmp = tmp->r;
-				return iterator(tmp->r);
-			}
+			iterator begin() { return _tree.begin(); }
+			const_iterator begin() const { return _tree.begin(); }
+			iterator end() { return _tree.end(); }
+			const_iterator end() const { return _tree.end(); }
+
+			// iterator end() { 
+			// 	node *tmp = tree;
+			// 	if (tmp)
+			// 		while (tmp->r)
+			// 			tmp = tmp->r;
+			// 	return iterator(tmp->r);
+			// }
+			// const_iterator end() const {
+			// 	node *tmp = tree;
+			// 	if (tmp)
+			// 		while (tmp->r)
+			// 			tmp = tmp->r;
+			// 	return iterator(tmp->r);
+			// }
 
 			//		--> MODIFIERS <--
 
-			pair<iterator,bool> insert (const value_type& val) {
-				if (!tree) {
-					tree = nal.allocate(1);
-					nal.construct(tree, node(val));
-					return (ft::make_pair(iterator(tree), true));
-				}
-				node *tmp = tree;
-				while (tmp != NULL) {
-					if (val.first < tmp->data.first)
-						tmp = tmp->l;
-					else if (tmp->data.first < val.first)
-						tmp = tmp->r;
-					else
-						return (ft::make_pair(iterator(tmp), false));
-				}
-				tmp = nal.allocate(1);
-				nal.construct(tmp, node(val));
-				_n++;
-				return (ft::make_pair(iterator(tmp), true));
-			}
+			pair<iterator,bool> insert (const value_type& val) { return (_tree.insert(val)); }
 
 			//		--> CAPACITY <--
-			bool empty() const { return _n == 0; }
-			size_type size() const { return _n; }
+			bool empty() const { return _tree.empty(); }
+			size_type size() const { return _tree.size(); }
 
 			//		--> OPERATORS <--
 
@@ -113,12 +85,9 @@ namespace ft {
 			// }
 		
 		private :
-			size_type			_n;
-			Compare				_comp;
-			allocator_type		_alloc;
-			node				*tree;
-			// node				*end;
-			node_all			nal;
+			Compare							_comp;
+			allocator_type					_alloc;
+			BST<value_type, Key, Compare, Alloc>		_tree;
 
 	};
 }

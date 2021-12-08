@@ -6,6 +6,8 @@
 namespace ft {
 	template <typename T>
 	struct Node {
+		typedef T		value_type;
+
 		T			data;	// data
 		Node		*l;		// left child
 		Node		*r;		// right child
