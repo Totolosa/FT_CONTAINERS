@@ -73,21 +73,25 @@ namespace ft {
 			//		--> MODIFIERS <--
 
 			pair<iterator,bool> insert (const value_type& val) { return (_tree.insert(val)); }
+			void erase (iterator position);
+			size_type erase (const key_type& k) { return _tree.erase(k); }
+			void erase (iterator first, iterator last);
 
 			//		--> CAPACITY <--
 			bool empty() const { return _tree.empty(); }
 			size_type size() const { return _tree.size(); }
+			size_type max_size() const { return _alloc.max_size(); }
 
 			//		--> OPERATORS <--
 
-			// mapped_type& operator[] (const key_type& k) {
-			// 	return (*((this->insert(make_pair(k,mapped_type()))).first)).second
-			// }
+			mapped_type& operator[] (const key_type& k) {
+				return (insert(make_pair(k, mapped_type())).first)->second;
+			}
 		
 		private :
-			Compare							_comp;
-			allocator_type					_alloc;
-			BST<value_type, Key, Compare, Alloc>		_tree;
+			Compare									_comp;
+			allocator_type							_alloc;
+			BST<value_type, Key, Compare, Alloc>	_tree;
 
 	};
 }

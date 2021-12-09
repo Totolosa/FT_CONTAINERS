@@ -21,13 +21,13 @@ namespace ft {
 			template <typename V>
 			map_iterator(map_iterator<V> const & src) { *this = src; }
 
-			node_pointer base() const { return ptr; }
 			
 			reference operator*() const { return ptr->data; }	
 			pointer operator->() const { return &(ptr->data); }	
 			map_iterator & operator++() {
 				node_pointer tmp = ptr;
 				if (tmp->r) {
+					tmp = tmp->r;
 					while (tmp->l)
 						tmp = tmp->l;
 					ptr = tmp;
@@ -42,7 +42,15 @@ namespace ft {
 				return temp;
 			}
 			map_iterator & operator--() {
-				ptr--;
+				node_pointer tmp = ptr;
+				if (tmp->l) {
+					tmp = tmp->l;
+					while (tmp->r)
+						tmp = tmp->r;
+					ptr = tmp;
+				}
+				else if (tmp->p)
+					ptr = tmp->p;
 				return *this;
 			}
 			map_iterator operator--(int) {
@@ -52,15 +60,18 @@ namespace ft {
 			}
 			template <typename V>
 			map_iterator & operator=(map_iterator<V> const & rhs) {
-				ptr = rhs.base();
+				ptr = rhs.ptr;
 				return *this;
 			}
+			// template <typename V>
+			// bool operator==(map_iterator<V> const & rhs) { return ptr == rhs.ptr; }
+			// template <typename V, typename W>
+			// friend bool operator==(map_iterator<V> const & lhs, map_iterator<W> const & rhs) { return lhs.ptr == rhs.ptr; }
 			friend bool operator==(map_iterator const & lhs, map_iterator const & rhs) { return lhs.ptr == rhs.ptr; }
 			friend bool operator!=(map_iterator const & lhs, map_iterator const & rhs) { return lhs.ptr != rhs.ptr; }
 
 		protected:
 			node_pointer ptr;
-
 	};
 }
 
