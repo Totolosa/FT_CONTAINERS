@@ -25,8 +25,10 @@ class BST {
 			const allocator_type& alloc = allocator_type()) : _n(), _root(NULL), _nal(), _comp(comp), _tal(alloc) {
 				_begin = _nal.allocate(1);
 				_nal.construct(_begin, node());
+				_begin->b = -1;
 				_end = _nal.allocate(1);
 				_nal.construct(_end, node());
+				_end->b = 1;
 			}
 		// ~BST() { }
 
@@ -40,10 +42,11 @@ class BST {
 			if (tmp->r && tmp->l) {
 				node_pointer tmp2 = tmp->r;
 				while (tmp2->l)
-					tmp2 = tmp->l;
+					tmp2 = tmp2->l;
 				tmp2->p = tmp->p;
 				tmp2->r = tmp->r;
 				tmp2->l = tmp->l;
+				tmp->p->r = tmp2;
 			}
 			else if (tmp->l) {
 				tmp->p->l = tmp->l;
@@ -54,8 +57,9 @@ class BST {
 				tmp->r->p = tmp->p;
 			}
 			// else {
-				_nal.destroy(&(tmp->data));
+				_nal.destroy(tmp);
 				_nal.deallocate(tmp, 1);
+				_n--;
 			// }
 			return true;
 
@@ -135,12 +139,14 @@ class BST {
 		node_pointer _search_key(node_pointer &tmp, key_type const & key) {
 			if (!tmp || tmp == _begin || tmp == _end)
 				return _end;
-			else if (key == tmp->data.first)
-				return tmp;
+			// else if (key == tmp->data.first)
+			// 	return tmp;
 			else if (_comp(key, tmp->data.first))
 				return _search_key(tmp->l, key);
 			else if (_comp(tmp->data.first, key))
 				return _search_key(tmp->r, key);
+			else
+				return tmp;
 		}
 
 		size_t			_n;

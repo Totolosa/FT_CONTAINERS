@@ -21,7 +21,8 @@ namespace ft {
 			template <typename V>
 			map_iterator(map_iterator<V> const & src) { *this = src; }
 
-			
+			node_pointer getptr() const { return ptr; }
+
 			reference operator*() const { return ptr->data; }	
 			pointer operator->() const { return &(ptr->data); }	
 			map_iterator & operator++() {
@@ -33,7 +34,10 @@ namespace ft {
 					ptr = tmp;
 				}
 				else if (tmp->p)
+				{
+					// std::cout << std::endl << "ICI" << std::endl;
 					ptr = tmp->p;
+				}
 				return *this;
 			}
 			map_iterator operator++(int) {
@@ -60,15 +64,20 @@ namespace ft {
 			}
 			template <typename V>
 			map_iterator & operator=(map_iterator<V> const & rhs) {
-				ptr = rhs.ptr;
+				ptr = reinterpret_cast<map_iterator::node_pointer>(rhs.getptr());
+				// ptr = &*rhs;
 				return *this;
 			}
 			// template <typename V>
 			// bool operator==(map_iterator<V> const & rhs) { return ptr == rhs.ptr; }
-			// template <typename V, typename W>
-			// friend bool operator==(map_iterator<V> const & lhs, map_iterator<W> const & rhs) { return lhs.ptr == rhs.ptr; }
-			friend bool operator==(map_iterator const & lhs, map_iterator const & rhs) { return lhs.ptr == rhs.ptr; }
-			friend bool operator!=(map_iterator const & lhs, map_iterator const & rhs) { return lhs.ptr != rhs.ptr; }
+			template <typename V, typename W>
+			friend bool operator==(map_iterator<V> const & lhs, map_iterator<W> const & rhs) { return lhs.ptr == reinterpret_cast<map_iterator::node_pointer>(rhs.getptr()); }
+			template <typename V, typename W>
+			friend bool operator!=(map_iterator<V> const & lhs, map_iterator<W> const & rhs) { return lhs.ptr != reinterpret_cast<map_iterator::node_pointer>(rhs.getptr()); }
+			// bool operator==(map_iterator const & lhs, map_iterator const & rhs) { return lhs.ptr == rhs.ptr; }
+			// bool operator!=(map_iterator const & lhs, map_iterator const & rhs) { return lhs.ptr != rhs.ptr; }
+			// bool operator==(map_iterator const & rhs) const { return ptr == rhs.ptr; }
+			// bool operator!=(map_iterator const & rhs) const { return ptr != rhs.ptr; }
 
 		protected:
 			node_pointer ptr;
