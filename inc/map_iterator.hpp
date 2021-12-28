@@ -33,9 +33,9 @@ namespace ft {
 						tmp = tmp->l;
 					ptr = tmp;
 				}
-				else if (tmp->p)
-				{
-					// std::cout << std::endl << "ICI" << std::endl;
+				else if (tmp->p) {
+					while (tmp == tmp->p->r)
+						tmp = tmp->p;
 					ptr = tmp->p;
 				}
 				return *this;
@@ -53,8 +53,11 @@ namespace ft {
 						tmp = tmp->r;
 					ptr = tmp;
 				}
-				else if (tmp->p)
+				else if (tmp->p) {
+					while (tmp == tmp->p->l)
+						tmp = tmp->p;
 					ptr = tmp->p;
+				}
 				return *this;
 			}
 			map_iterator operator--(int) {

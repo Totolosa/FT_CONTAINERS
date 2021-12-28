@@ -73,8 +73,8 @@ namespace ft {
 			//		--> MODIFIERS <--
 
 			pair<iterator,bool> insert (const value_type& val) { return (_tree.insert(val)); }
-			void erase (iterator position);
-			size_type erase (const key_type& k) { return _tree.erase(k); }
+			// void erase (iterator position) { return _tree.erase_it(k);}
+			size_type erase (const key_type& k) { return _tree.erase_key(k); }
 			void erase (iterator first, iterator last);
 
 			//		--> CAPACITY <--
