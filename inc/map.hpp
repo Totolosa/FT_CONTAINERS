@@ -32,6 +32,7 @@ namespace ft {
 			typedef T												mapped_type;
 			typedef ft::pair<const Key, T>							value_type;
 			typedef Compare											key_compare;
+			// typedef 												value_compare;
 			typedef Alloc											allocator_type;
 			typedef typename Alloc::reference						reference;
 			typedef typename Alloc::const_reference					const_reference;
@@ -76,13 +77,41 @@ namespace ft {
 			// void erase (iterator position) { return _tree.erase_it(k);}
 			size_type erase (const key_type& k) { return _tree.erase_key(k); }
 			void erase (iterator first, iterator last);
+			void clear () { return _tree.clear(); }
+			void swap (map& x) { _tree.swap(x._tree); }
+
 
 			//		--> CAPACITY <--
+
 			bool empty() const { return _tree.empty(); }
 			size_type size() const { return _tree.size(); }
 			size_type max_size() const { return _alloc.max_size(); }
 
-			//		--> OPERATORS <--
+
+			//		--> OBSERVERS <--
+
+			key_compare key_comp() const { return _comp; }
+			class value_compare {
+				// friend class map;
+				protected:
+					Compare comp;
+				public:
+					value_compare (Compare c) : comp(c) {}
+					typedef bool result_type;
+					typedef value_type first_argument_type;
+					typedef value_type second_argument_type;
+					bool operator() (const value_type& x, const value_type& y) const { return comp(x.first, y.first); }
+			};
+			value_compare value_comp() const { return value_compare(_comp); }
+
+
+			//		--> OPERATIONS <--
+
+			iterator find (const key_type& k) { return iterator(_tree.search_key(_tree.begin().getptr(), k)); }
+			const_iterator find (const key_type& k) const { return iterator(_tree.search_key(_tree.begin().getptr(), k)); }
+
+
+			//		--> ACCESS <--
 
 			mapped_type& operator[] (const key_type& k) {
 				return (insert(make_pair(k, mapped_type())).first)->second;

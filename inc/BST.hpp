@@ -91,8 +91,13 @@ class BST {
 			}
 			// return _insert(_root, val); 
 		}
+		// void erase_it (iterator position) {
+		// 	_nal.destroy(position->getptr());
+		// 	_nal.deallocate(position->getptr());
+		// 	// position->getptr()
+		// }
 		bool erase_key(key_type const & k) {
-			node_pointer tmp = _search_key(_root, k);
+			node_pointer tmp = search_key(_root, k);
 			if (tmp == _end) {
 				// std::cout << "number to erase not fount" << std::endl;
 				return false;
@@ -160,6 +165,27 @@ class BST {
 		// void erase(iterator & start, iterator & end) {
 		// 	iterator tmp = _search_key();
 		// }
+		void clear() {
+			if (_n == 0)
+				return ;
+			iterator it = iterator(_begin->p);
+			iterator end = iterator(_end);
+			while (it != end)
+				_erase_node((it++).getptr());
+			_root = NULL;
+			_begin->p = NULL;
+			_end->p = NULL;
+			_n = 0;
+		}
+		void swap (BST& x) {
+			std::swap(_n, x._n);
+			std::swap(_root, x._root);
+			std::swap(_begin, x._begin);
+			std::swap(_end, x._end);
+			std::swap(_nal, x._nal);
+			std::swap(_comp, x._comp);
+			std::swap(_tal, x._tal);
+		}
 		
 		//		--> CAPACITY <--
 
@@ -172,6 +198,17 @@ class BST {
 		const_iterator begin() const {return ++iterator(_begin); }
 		iterator end() { return iterator(_end); }
 		const_iterator end() const {return iterator(_end); }
+		node_pointer search_key(node_pointer &tmp, key_type const & key) {
+			// std::cout << "key = " << key << ", tmp->key = " << tmp->data.first << std::endl;
+			if (!tmp || tmp == _begin || tmp == _end)
+				return _end;
+			else if (_comp(key, tmp->data.first))
+				return search_key(tmp->l, key);
+			else if (_comp(tmp->data.first, key))
+				return search_key(tmp->r, key);
+			else
+				return tmp;
+		}
 		
 
 	private:
@@ -223,18 +260,9 @@ class BST {
 			newnode->r = _end;
 			_end->p = newnode;
 		}
-		node_pointer _search_key(node_pointer &tmp, key_type const & key) {
-			// std::cout << "key = " << key << ", tmp->key = " << tmp->data.first << std::endl;
-			if (!tmp || tmp == _begin || tmp == _end)
-				return _end;
-			// else if (key == tmp->data.first)
-			// 	return tmp;
-			else if (_comp(key, tmp->data.first))
-				return _search_key(tmp->l, key);
-			else if (_comp(tmp->data.first, key))
-				return _search_key(tmp->r, key);
-			else
-				return tmp;
+		void _erase_node (node_pointer to_erase) {
+			_nal.destroy(to_erase);
+			_nal.deallocate(to_erase, 1);
 		}
 
 		size_t			_n;
