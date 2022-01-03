@@ -18,6 +18,8 @@ namespace ft {
 			typedef std::bidirectional_iterator_tag	iterator_category;
 
 			map_iterator() : ptr(NULL) {} ;
+			// template <typename V>
+			// map_iterator(V const & ptr_node) : ptr(ptr_node) {}
 			map_iterator(node_pointer const & ptr_node) : ptr(ptr_node) {}
 			template <typename V>
 			map_iterator(map_iterator<V> const & src) { *this = src; }
@@ -74,10 +76,12 @@ namespace ft {
 			}
 			// template <typename V>
 			// bool operator==(map_iterator<V> const & rhs) { return ptr == rhs.ptr; }
+			// template <typename V>
+			// bool operator!=(map_iterator<V> const & rhs) { return ptr != rhs.ptr; }
 			template <typename V, typename W>
-			friend bool operator==(map_iterator<V> const & lhs, map_iterator<W> const & rhs) { return lhs.ptr == reinterpret_cast<map_iterator::node_pointer>(rhs.getptr()); }
+			friend bool operator==(map_iterator<V> const & lhs, map_iterator<W> const & rhs) { return reinterpret_cast<map_iterator::node_pointer>(lhs.ptr) == reinterpret_cast<map_iterator::node_pointer>(rhs.ptr); }
 			template <typename V, typename W>
-			friend bool operator!=(map_iterator<V> const & lhs, map_iterator<W> const & rhs) { return lhs.ptr != reinterpret_cast<map_iterator::node_pointer>(rhs.getptr()); }
+			friend bool operator!=(map_iterator<V> const & lhs, map_iterator<W> const & rhs) { return reinterpret_cast<map_iterator::node_pointer>(lhs.ptr) != reinterpret_cast<map_iterator::node_pointer>(rhs.ptr); }
 			// bool operator==(map_iterator const & lhs, map_iterator const & rhs) { return lhs.ptr == rhs.ptr; }
 			// bool operator!=(map_iterator const & lhs, map_iterator const & rhs) { return lhs.ptr != rhs.ptr; }
 			// bool operator==(map_iterator const & rhs) const { return ptr == rhs.ptr; }

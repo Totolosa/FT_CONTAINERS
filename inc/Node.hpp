@@ -6,7 +6,7 @@
 namespace ft {
 	template <typename T>
 	struct Node {
-		typedef T		value_type;
+		typedef T			value_type;
 
 		T			data;	// data
 		Node		*l;		// left child
@@ -17,14 +17,19 @@ namespace ft {
 		Node () : data(T()), l(NULL), r(NULL), p(NULL), b(0) {}
 		Node (T const & val) : data(val), l(NULL), r(NULL), p(NULL), b(0) {}
 		template <typename V>
-		Node (Node<V> const & src) : data(src.data), l(src.l), r(src.l), p(src.p), b(0) {}
+		Node (Node<V> const & src) : data(src.data), l(NULL), r(NULL), p(NULL), b(0) {}
+		// Node (Node<V> const & src) : data(src.data), l(src.l), r(src.l), p(src.p), b(0) {}
+		template <typename V>
+		Node (Node<V> const * ptr) : data(ptr->data), l(NULL), r(NULL), p(NULL), b(0) {}
 		~Node() {}
+
+		int getKey() const {return data.first; }
 
 		Node & operator=(Node const & src) {
 			data = src.data;
-			l = src.l;
-			r = src.r;
-			p = src.p;
+			// l = src.l;
+			// r = src.r;
+			// p = src.p;
 		}
 	};
 }

@@ -21,16 +21,30 @@ class BST {
 		typedef ft::reverse_iterator<iterator>					reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
 
-		BST(const key_compare& comp = key_compare(),
+		BST (const key_compare& comp = key_compare(),
 			const allocator_type& alloc = allocator_type()) : _n(), _root(NULL), _nal(), _comp(comp), _tal(alloc) {
-				_begin = _nal.allocate(1);
-				_nal.construct(_begin, node());
-				_begin->b = -1;
-				_end = _nal.allocate(1);
-				_nal.construct(_end, node());
-				_end->b = 1;
-			}
+			_begin = _nal.allocate(1);
+			_nal.construct(_begin, node());
+			_begin->b = -1;
+			_end = _nal.allocate(1);
+			_nal.construct(_end, node());
+			_end->b = 1;
+		}
+		BST (const BST & src) : _n(0), _root(NULL), _nal(src._nal), _comp(src._comp), _tal(src._tal) {
+			_begin = _nal.allocate(1);
+			_nal.construct(_begin, node());
+			_begin->b = -1;
+			_end = _nal.allocate(1);
+			_nal.construct(_end, node());
+			_end->b = 1;
+			*this = src; }
 		// ~BST() { }
+
+		//		--> GETERS <--
+
+		node_pointer get_root () const { return _root; }
+		node_pointer get_begin () const { return _begin; }
+		node_pointer get_end () const { return _end; }
 
 		//		--> MODIFIERS <--
 
@@ -97,7 +111,7 @@ class BST {
 		// 	// position->getptr()
 		// }
 		bool erase_key(key_type const & k) {
-			node_pointer tmp = search_key(_root, k);
+			node_pointer tmp = _search_key(_root, k);
 			if (tmp == _end) {
 				// std::cout << "number to erase not fount" << std::endl;
 				return false;
@@ -149,12 +163,26 @@ class BST {
 				tmp2->r = tmp->r;
 			}
 			else if (tmp->l) {
-				tmp->p->l = tmp->l;
+				if (tmp == tmp->p->r)
+					tmp->p->r = tmp->l;
+				else
+					tmp->p->l = tmp->l;
+				// tmp->p->l = tmp->l;
 				tmp->l->p = tmp->p;
 			}
 			else if (tmp->r) {
-				tmp->p->r = tmp->r;
+				if (tmp == tmp->p->r)
+					tmp->p->r = tmp->r;
+				else
+					tmp->p->l = tmp->r;
+				// tmp->p->r = tmp->r;
 				tmp->r->p = tmp->p;
+			}
+			else {
+				if (tmp == tmp->p->r)
+					tmp->p->r = NULL;
+				else
+					tmp->p->l = NULL;
 			}
 			_nal.destroy(tmp);
 			_nal.deallocate(tmp, 1);
@@ -198,52 +226,42 @@ class BST {
 		const_iterator begin() const {return ++iterator(_begin); }
 		iterator end() { return iterator(_end); }
 		const_iterator end() const {return iterator(_end); }
-		node_pointer search_key(node_pointer &tmp, key_type const & key) {
-			// std::cout << "key = " << key << ", tmp->key = " << tmp->data.first << std::endl;
-			if (!tmp || tmp == _begin || tmp == _end)
-				return _end;
-			else if (_comp(key, tmp->data.first))
-				return search_key(tmp->l, key);
-			else if (_comp(tmp->data.first, key))
-				return search_key(tmp->r, key);
-			else
-				return tmp;
+		// node_pointer find (const key_type& k) { return _search_key(_root, k); }
+		node_pointer find (const key_type& k) const { return _search_key(_root, k); }
+		iterator find_bound(const key_type& key, char bound) { 
+			iterator it = begin();
+			while (_comp(it->first, key) && it != end())
+				it++;
+			if (!_comp(key, it->first) && bound == 'u')
+				return (++it);
+			return it;
 		}
 		
+		//		--> OPERATORS <--
+		BST & operator=(BST const & src) {
+			if (_n > 0)
+				clear();
+			_nal = src._nal;
+			_comp = src._comp;
+			_tal = src._tal;
+			for (iterator it = src.begin(); it != src.end(); it++)
+				insert(*it);
+			return *this;
+		}
+
+		int height(node_pointer node) {
+			if (node->l == 0 && node->r == 0)
+				return 1;
+			else if (node->r == 0)
+				return 1 + height(node->l);
+			else if (node->l == 0)
+				return 1 + height(node->r);
+			else
+				return 1 + std::max(height(node->l), height(node->r));
+		}
+		node_alloc get_allocator() const { return _nal; }
 
 	private:
-		// ft::pair< iterator, bool> _insert (node_pointer &tmp, const value_type& val) {
-		// 	if (!tmp || tmp == _begin || tmp == _end) {
-		// 		node_pointer newnode = _nal.allocate(1);
-		// 		_nal.construct(newnode, node(val));
-		// 		if (!tmp) {
-		// 			// std::cout << "!tmp" << std::endl;
-		// 			_insert_node(newnode, tmp);
-		// 		}
-		// 		else if (tmp == _begin) {
-		// 			// std::cout << "tmp == begin" << std::endl;
-		// 			_set_begin(newnode, tmp->p);
-		// 		}
-		// 		else if (tmp == _end) {
-		// 			// std::cout << "tmp == end" << std::endl;
-		// 			_set_end(newnode, tmp->p);
-		// 		}
-		// 		_n++;
-		// 		// std::cout << "ICI, _n = " << _n << std::endl;
-		// 		return (ft::make_pair(iterator(newnode), true));
-		// 	}
-		// 	else if (_comp(val.first, tmp->data.first)) {
-		// 		// std::cout << "insert <" << std::endl;
-		// 		return _insert(tmp->l, val);
-		// 	}
-		// 	else if (_comp(tmp->data.first, val.first)) {
-		// 		// std::cout << "insert >" << std::endl;
-		// 		return _insert(tmp->r, val);
-		// 	}
-		// 	else {
-		// 		return (ft::make_pair(iterator(tmp), false));
-		// 	}
-		// }
 		void _insert_node(node_pointer &newnode, node_pointer &parent) {
 			newnode->p = parent;
 			parent = newnode;
@@ -263,6 +281,17 @@ class BST {
 		void _erase_node (node_pointer to_erase) {
 			_nal.destroy(to_erase);
 			_nal.deallocate(to_erase, 1);
+		}
+		node_pointer _search_key(node_pointer tmp, key_type const & key) const {
+			// std::cout << "key = " << key << ", tmp->key = " << tmp->data.first << std::endl;
+			if (!tmp || tmp == _begin || tmp == _end)
+				return _end;
+			else if (_comp(key, tmp->data.first))
+				return _search_key(tmp->l, key);
+			else if (_comp(tmp->data.first, key))
+				return _search_key(tmp->r, key);
+			else
+				return tmp;
 		}
 
 		size_t			_n;

@@ -1,6 +1,7 @@
 .vscode
 TESTER_CONTAINERS42/
 zmy_tests
+to_do
 
 # Prerequisites
 *.d
