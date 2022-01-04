@@ -9,19 +9,28 @@ namespace ft {
 	template <typename T>
 	class map_iterator {
 		public :
-			typedef T								node;
+			// typedef T								node;
+			// typedef node*							node_pointer;
+			// typedef typename T::value_type			value_type;
+			typedef T 								value_type;
+			typedef ft::Node<value_type>			node;
 			typedef node*							node_pointer;
-			typedef typename T::value_type			value_type;
 			typedef std::ptrdiff_t					difference_type;
 			typedef value_type*						pointer;
 			typedef value_type&						reference;
 			typedef std::bidirectional_iterator_tag	iterator_category;
 
 			map_iterator() : ptr(NULL) {} ;
+			// map_iterator(node_pointer * ptr_node) : ptr(reinterpret_cast<node_pointer>(ptr_node)) {}
 			// template <typename V>
-			// map_iterator(V const & ptr_node) : ptr(ptr_node) {}
-			map_iterator(node_pointer const & ptr_node) : ptr(ptr_node) {}
+			// map_iterator(typename ft::enable_if<std::is_const<value_type>::value, ft::Node<V> >::type * ptr_node) : ptr(reinterpret_cast<node_pointer>(ptr_node)) {}
+
 			template <typename V>
+			map_iterator(ft::Node<V> * ptr_node) : ptr(reinterpret_cast<node_pointer>(ptr_node)) {}
+			// map_iterator(typename ft::enable_if< !(!std::is_const<value_type>::value && std::is_const<typename Other::value_type>::value), Other * >::type ptr_node) : ptr(reinterpret_cast<node_pointer>(ptr_node)) {}
+			// map_iterator(node_pointer const & ptr_node) : ptr(ptr_node) {}
+			template <typename V>
+			// map_iterator(map_iterator<typename ft::enable_if<(std::is_const<value_type>::value || !std::is_const<V>::value), V >::type> const & src) { *this = src; }
 			map_iterator(map_iterator<V> const & src) { *this = src; }
 
 			node_pointer getptr() const { return ptr; }

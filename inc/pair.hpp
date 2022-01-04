@@ -21,6 +21,11 @@ namespace ft {
 			first = src.first;
 			second = src.second;
 		}
+		bool operator==(const pair<T1, T2> & lhs) const {
+			if (first == lhs.first && second == lhs.second)
+				return true;
+			return false;
+		}
 	};
 }
 

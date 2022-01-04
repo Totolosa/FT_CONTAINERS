@@ -4,7 +4,10 @@
 # include <iostream>
 # include "Node.hpp"
 # include "pair.hpp"
+# include "enable_if.hpp"
+# include "equal.hpp"
 # include "map_iterator.hpp"
+# include "map_reverse_iterator.hpp"
 
 template <typename T, typename Key, typename Compare = std::less<Key>, typename Alloc = std::allocator<T> >
 class BST {
@@ -16,29 +19,35 @@ class BST {
 		typedef ft::Node<value_type>							node;
 		typedef node*											node_pointer;
 		typedef typename Alloc::template rebind<node>::other	node_alloc;
-		typedef ft::map_iterator<ft::Node<value_type> >			iterator;
-		typedef ft::map_iterator<ft::Node<const value_type> >	const_iterator;
-		typedef ft::reverse_iterator<iterator>					reverse_iterator;
-		typedef ft::reverse_iterator<const_iterator>			const_reverse_iterator;
+		// typedef ft::map_iterator<ft::Node<value_type> >			iterator;
+		// typedef ft::map_iterator<ft::Node<const value_type> >	const_iterator;
+		typedef ft::map_iterator<value_type>					iterator;
+		typedef ft::map_iterator<const value_type>				const_iterator;
+		typedef ft::map_reverse_iterator<iterator>				reverse_iterator;
+		typedef ft::map_reverse_iterator<const_iterator>		const_reverse_iterator;
 
 		BST (const key_compare& comp = key_compare(),
-			const allocator_type& alloc = allocator_type()) : _n(), _root(NULL), _nal(), _comp(comp), _tal(alloc) {
-			_begin = _nal.allocate(1);
-			_nal.construct(_begin, node());
-			_begin->b = -1;
-			_end = _nal.allocate(1);
-			_nal.construct(_end, node());
-			_end->b = 1;
+			const allocator_type& alloc = allocator_type()) : _n(0), _root(NULL), _nal(), _comp(comp), _tal(alloc) {
+			_init_limits();
+		}
+		template <class InputIterator>
+		BST (typename ft::enable_if< (ft::is_same<InputIterator, iterator>::value || ft::is_same<InputIterator, const_iterator>::value || ft::is_same<InputIterator, reverse_iterator>::value || ft::is_same<InputIterator, const_reverse_iterator>::value), InputIterator>::type first
+			, InputIterator last
+			, const key_compare& comp = key_compare()
+			, const allocator_type& alloc = allocator_type()) : _n(0), _root(NULL), _nal(), _comp(comp), _tal(alloc) {
+			_init_limits();
+			for (iterator it = first; it != last; it++)
+				insert(*it);
 		}
 		BST (const BST & src) : _n(0), _root(NULL), _nal(src._nal), _comp(src._comp), _tal(src._tal) {
-			_begin = _nal.allocate(1);
-			_nal.construct(_begin, node());
-			_begin->b = -1;
-			_end = _nal.allocate(1);
-			_nal.construct(_end, node());
-			_end->b = 1;
-			*this = src; }
-		// ~BST() { }
+			_init_limits();
+			*this = src;
+		}
+		~BST() { 
+			clear();
+			_erase_node(_begin);
+			_erase_node(_end);
+		}
 
 		//		--> GETERS <--
 
@@ -110,7 +119,7 @@ class BST {
 		// 	_nal.deallocate(position->getptr());
 		// 	// position->getptr()
 		// }
-		bool erase_key(key_type const & k) {
+		bool erase(key_type const & k) {
 			node_pointer tmp = _search_key(_root, k);
 			if (tmp == _end) {
 				// std::cout << "number to erase not fount" << std::endl;
@@ -220,15 +229,15 @@ class BST {
 		bool empty() const { return _n == 0; }
 		size_t size() const { return _n; }
 
+
 		//		--> ACCESSORS <--
 
 		iterator begin() { return ++iterator(_begin); }
 		const_iterator begin() const {return ++iterator(_begin); }
 		iterator end() { return iterator(_end); }
 		const_iterator end() const {return iterator(_end); }
-		// node_pointer find (const key_type& k) { return _search_key(_root, k); }
 		node_pointer find (const key_type& k) const { return _search_key(_root, k); }
-		iterator find_bound(const key_type& key, char bound) { 
+		iterator find_bound(const key_type& key, char bound) const { 
 			iterator it = begin();
 			while (_comp(it->first, key) && it != end())
 				it++;
@@ -238,6 +247,7 @@ class BST {
 		}
 		
 		//		--> OPERATORS <--
+
 		BST & operator=(BST const & src) {
 			if (_n > 0)
 				clear();
@@ -262,6 +272,14 @@ class BST {
 		node_alloc get_allocator() const { return _nal; }
 
 	private:
+		void _init_limits () {
+			_begin = _nal.allocate(1);
+			_nal.construct(_begin, node());
+			_begin->b = -1;
+			_end = _nal.allocate(1);
+			_nal.construct(_end, node());
+			_end->b = 1;
+		}
 		void _insert_node(node_pointer &newnode, node_pointer &parent) {
 			newnode->p = parent;
 			parent = newnode;

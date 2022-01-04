@@ -9,8 +9,9 @@
 # include "enable_if.hpp"
 # include "equal.hpp"
 # include "lexicographical_compare.hpp"
-# include "reverse_iterator.hpp"
 # include "vector_iterator.hpp"
+// # include "vector_reverse_iterator.hpp"
+# include "vector_reverse_iterator.hpp"
 
 template <typename C>
 void print_vec_inside(C & cont) {
@@ -28,18 +29,18 @@ namespace ft {
 		public:
 			template <typename U> class iter;
 
-			typedef T										value_type;
-			typedef Alloc									allocator_type;
-			typedef typename Alloc::reference				reference;
-			typedef typename Alloc::const_reference			const_reference;
-			typedef typename Alloc::pointer					pointer;
-			typedef typename Alloc::const_pointer			const_pointer;
-			typedef ft::vector_iterator<T>					iterator;
-			typedef ft::vector_iterator<const T>			const_iterator;
-			typedef ft::reverse_iterator<iterator>			reverse_iterator;
-			typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
-			typedef typename Alloc::difference_type			difference_type;
-			typedef typename Alloc::difference_type			size_type;
+			typedef T											value_type;
+			typedef Alloc										allocator_type;
+			typedef typename Alloc::reference					reference;
+			typedef typename Alloc::const_reference				const_reference;
+			typedef typename Alloc::pointer						pointer;
+			typedef typename Alloc::const_pointer				const_pointer;
+			typedef ft::vector_iterator<T>						iterator;
+			typedef ft::vector_iterator<const T>				const_iterator;
+			typedef ft::vector_reverse_iterator<iterator>		reverse_iterator;
+			typedef ft::vector_reverse_iterator<const_iterator>	const_reverse_iterator;
+			typedef typename Alloc::difference_type				difference_type;
+			typedef typename Alloc::difference_type				size_type;
 
 			//		--> CONSTRUCTORS/DESTRUCTORS <--
 
