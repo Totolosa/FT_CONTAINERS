@@ -31,16 +31,16 @@ namespace ft {
 			pointer operator->() const { return &(ptr->data); }	
 			map_reverse_iterator & operator++() {
 				node_pointer tmp = ptr;
-				if (tmp->l) {
-					tmp = tmp->l;
-					while (tmp->r)
-						tmp = tmp->r;
+				if (tmp->left) {
+					tmp = tmp->left;
+					while (tmp->right)
+						tmp = tmp->right;
 					ptr = tmp;
 				}
-				else if (tmp->p) {
-					while (tmp == tmp->p->l)
-						tmp = tmp->p;
-					ptr = tmp->p;
+				else if (tmp->parent) {
+					while (tmp == tmp->parent->left)
+						tmp = tmp->parent;
+					ptr = tmp->parent;
 				}
 				return *this;
 			}
@@ -51,16 +51,16 @@ namespace ft {
 			}
 			map_reverse_iterator & operator--() {
 				node_pointer tmp = ptr;
-				if (tmp->r) {
-					tmp = tmp->r;
-					while (tmp->l)
-						tmp = tmp->l;
+				if (tmp->right) {
+					tmp = tmp->right;
+					while (tmp->left)
+						tmp = tmp->left;
 					ptr = tmp;
 				}
-				else if (tmp->p) {
-					while (tmp == tmp->p->r)
-						tmp = tmp->p;
-					ptr = tmp->p;
+				else if (tmp->parent) {
+					while (tmp == tmp->parent->right)
+						tmp = tmp->parent;
+					ptr = tmp->parent;
 				}
 				return *this;
 			}

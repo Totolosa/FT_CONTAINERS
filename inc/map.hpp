@@ -7,6 +7,7 @@
 # include <math.h>
 # include "enable_if.hpp"
 # include "equal.hpp"
+# include "lexicographical_compare.hpp"
 # include "pair.hpp"
 # include "make_pair.hpp"
 # include "map_iterator.hpp"
@@ -43,6 +44,7 @@ namespace ft {
 			typedef typename Alloc::reference						reference;
 			typedef typename Alloc::const_reference					const_reference;
 			typedef typename Alloc::pointer							pointer;
+			// typedef value_type*										pointer;
 			typedef typename Alloc::const_pointer					const_pointer;
 			// typedef ft::map_iterator<ft::Node<value_type> >			iterator;
 			// typedef ft::map_iterator<const ft::Node<const value_type> >	const_iterator;
@@ -78,9 +80,29 @@ namespace ft {
 			//		--> MODIFIERS <--
 
 			pair<iterator,bool> insert (const value_type& val) { return (_tree.insert(val)); }
-			// void erase (iterator position) { return _tree.erase_it(k);}
-			size_type erase (const key_type& k) { return _tree.erase(k); }
-			void erase (iterator first, iterator last);
+			iterator insert (iterator position, const value_type& val) { 
+				(void)position;
+				return _tree.insert(val).first; 
+			}
+			template <class InputIterator>
+			void insert (InputIterator first, InputIterator last) {
+				while (first != last)
+					insert(*(first++));
+			}
+			// template <class InputIterator>
+			// void insert(typename enable_if< (ft::is_same<InputIterator, pointer>::value 
+			// 	|| ft::is_same<InputIterator, const_pointer>::value || ft::is_same<InputIterator, iterator>::value
+			// 	|| ft::is_same<InputIterator, const_iterator>::value), InputIterator>::type first
+			// 	, InputIterator last) {
+			// 	while (first != last)
+			// 		insert(*(first++));
+			// }
+			void erase (iterator position) { _tree.erase(position->first, position); }
+			size_type erase (const key_type& k) { return _tree.erase(k, _tree.end()); }
+			void erase (iterator first, iterator last) {
+				while (first != last)
+					erase((first++)->first);
+			}
 			void clear () { return _tree.clear(); }
 			void swap (map& x) { _tree.swap(x._tree); }
 
@@ -96,10 +118,11 @@ namespace ft {
 
 			key_compare key_comp() const { return _comp; }
 			class value_compare {
+				friend class map;
 				protected:
 					Compare comp;
-				public:
 					value_compare (Compare c) : comp(c) {}
+				public:
 					typedef bool result_type;
 					typedef value_type first_argument_type;
 					typedef value_type second_argument_type;
@@ -121,16 +144,38 @@ namespace ft {
 			pair<const_iterator,const_iterator> equal_range (const key_type& k) const { return ft::make_pair(lower_bound(k), upper_bound(k)); }
 
 
-			//		--> ACCESS <--
+			//		--> ALLOCATOR <--
+
+			allocator_type get_allocator() const { return _alloc; }
+
+
+			//		--> OPERATORS <--
 
 			mapped_type& operator[] (const key_type& k) {
 				return (insert(make_pair(k, mapped_type())).first)->second;
 			}
-
-
-			//		--> ALLOCATOR <--
-
-			allocator_type get_allocator() const { return _alloc; }
+			map& operator=(const map& x) {
+				_comp = x._comp;
+				_alloc = x._alloc;
+				_tree = x._tree;
+				return *this;
+			}
+			friend bool operator==(const map& lhs, const map& rhs) { 
+				if (lhs.empty() && rhs.empty())
+					return true;
+				else if (lhs.size() != rhs.size() )
+					return false;
+				return (ft::equal(lhs.begin(), lhs.end(), rhs.begin()));
+			}
+			friend bool operator!= (const map& lhs, const map& rhs) { return !(lhs == rhs); }
+			friend bool operator<  (const map& lhs, const map& rhs) { return (ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end())); }
+			friend bool operator<= (const map& lhs, const map& rhs) { return ((lhs < rhs) || (lhs == rhs)); }
+			friend bool operator>  (const map& lhs, const map& rhs) { return (!(lhs < rhs) && (lhs != rhs)); }
+			friend bool operator>= (const map& lhs, const map& rhs) { return !(lhs < rhs); }
+			// template <class T, class Alloc>
+			// bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
+			// template <class T, class Alloc>
+			// bool operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
 
 
 
@@ -189,8 +234,8 @@ namespace ft {
 					delete temp;
 					continue;
 					}
-					if (temp->l != 0) {
-					n.push(temp->l);
+					if (temp->left != 0) {
+					n.push(temp->left);
 					if (temp->getKey() != '*')
 						v++;
 					} else {
@@ -199,8 +244,8 @@ namespace ft {
 					_tree.get_allocator().construct(temp2, ft::Node<value_type>(p1));
 					n.push(temp2);
 					}
-					if (temp->r != 0) {
-					n.push(temp->r);
+					if (temp->right != 0) {
+					n.push(temp->right);
 					if (temp->getKey() != '*')
 						v++;
 					} else {

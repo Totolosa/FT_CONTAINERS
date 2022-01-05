@@ -20,9 +20,19 @@ namespace ft {
 		pair& operator= (const pair& src) {
 			first = src.first;
 			second = src.second;
+			return *this;
 		}
-		bool operator==(const pair<T1, T2> & lhs) const {
-			if (first == lhs.first && second == lhs.second)
+		bool operator==(const pair<T1, T2> & rhs) const {
+			if (first == rhs.first && second == rhs.second)
+				return true;
+			return false;
+		}
+		bool operator<(const pair<T1, T2> & rhs) const {
+			if (first < rhs.first)
+				return true;
+			else if (rhs.first < rhs.first)
+				return false;
+			else if (second < rhs.second)
 				return true;
 			return false;
 		}

@@ -8,28 +8,30 @@ namespace ft {
 	struct Node {
 		typedef T			value_type;
 
-		T			data;	// data
-		Node		*l;		// left child
-		Node		*r;		// right child
-		Node		*p;		// parent
-		int			b;		// -1 = begin, 0 = node , 1 = end
+		T			data;		// data
+		Node		*left;			// left child
+		Node		*right;			// right child
+		Node		*parent;			// parent
+		int			height_l;	// height left subtree
+		int			height_r;	// height right subtree
+		int			b;			// -1 = begin, 0 = node , 1 = end
 
-		Node () : data(T()), l(NULL), r(NULL), p(NULL), b(0) {}
-		Node (T const & val) : data(val), l(NULL), r(NULL), p(NULL), b(0) {}
+		Node () : data(T()), left(NULL), right(NULL), parent(NULL), height_l(0), height_r(0), b(0) {}
+		Node (T const & val) : data(val), left(NULL), right(NULL), parent(NULL), height_l(0), height_r(0), b(0) {}
 		template <typename V>
-		Node (Node<V> const & src) : data(src.data), l(NULL), r(NULL), p(NULL), b(0) {}
-		// Node (Node<V> const & src) : data(src.data), l(src.l), r(src.l), p(src.p), b(0) {}
+		Node (Node<V> const & src) : data(src.data), left(NULL), right(NULL), parent(NULL), height_l(0), height_r(0), b(0) {}
+		// Node (Node<V> const & src) : data(src.data), left(src.left), right(src.left), parent(src.parent), b(0) {}
 		template <typename V>
-		Node (Node<V> const * ptr) : data(ptr->data), l(NULL), r(NULL), p(NULL), b(0) {}
+		Node (Node<V> const * ptr) : data(ptr->data), left(NULL), right(NULL), parent(NULL), height_l(0), height_r(0), b(0) {}
 		~Node() {}
 
 		int getKey() const {return data.first; }
 
 		Node & operator=(Node const & src) {
 			data = src.data;
-			// l = src.l;
-			// r = src.r;
-			// p = src.p;
+			// left = src.left;
+			// right = src.right;
+			// parent = src.parent;
 		}
 	};
 }

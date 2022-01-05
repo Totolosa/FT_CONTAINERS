@@ -16,7 +16,7 @@ SRCS			= main.cpp
 OBJS			= ${SRCS:%.cpp=$(DIR_OBJS)/%.o}
 DIR_OBJS		= objs
 COMPIL			= clang++
-CPP_FLAGS		= -Wall -Wextra -Werror -std=c++98 #-pedantic
+CPP_FLAGS		= -Wall -Wextra -Werror #-std=c++98
 RM				= rm -rf
 MKDIR			= mkdir -p
 
