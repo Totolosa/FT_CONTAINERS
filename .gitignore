@@ -1,6 +1,7 @@
 .vscode
 TESTER_CONTAINERS42/
 to_do
+*.dSYM
 
 # Prerequisites
 *.d

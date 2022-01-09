@@ -73,82 +73,117 @@ class BST {
 			else
 				return _insert(_root, val); 
 		}
-		ft::pair< iterator, bool> _insert (node_pointer &tmp, const value_type& val) {
+		ft::pair< iterator, bool> _insert (node_pointer tmp, const value_type& val) {
+			// std::cout << "debut _insert : val = " << val.first << ", tmp = " << tmp->data.first << std::endl;
 			if (_comp(val.first, tmp->data.first)) {
-				// std::cout << "insert <" << std::endl;
 				if (tmp->left == NULL || tmp->left == _begin) {
-					// _insert_node(tmp, &tmp->left, val);
 					_insert_node(tmp, 'l', val);
-					std::cout << "newnode = " << tmp->left->data.first << std::endl;
-					std::cout << "before check_height, val = " << val.first << std::endl;
-					ft::pair<iterator, bool> ret(iterator(tmp->left), true);
-					check_height(tmp, tmp->height_l);
-					std::cout << "after check_height, newnode = " << val.first << std::endl;
-					return ret;
-					// return (ft::make_pair(iterator(tmp->left), true));
+					// ft::pair<iterator, bool> ret(iterator(tmp->left), true);
+					check_height(tmp, 'l');
+					// return ret;
+					return (ft::make_pair(iterator(tmp->left), true));
 				}
-				else {
-					std::cout << "continue dans insert avec tmp->left" << std::endl;
+				else
 					return _insert(tmp->left, val);
-				}
 			}
 			else if (_comp(tmp->data.first, val.first)) {
-				// std::cout << "insert >" << std::endl;
 				if (tmp->right == NULL || tmp->right == _end) {
-					// node_pointer test = NULL;
-					// std::cout << "test = " << test << std::endl;
-					std::cout << "tmp->right = " << tmp->right << std::endl;
-					// _insert_node(tmp, &tmp->right, val);
 					_insert_node(tmp, 'r', val);
-					std::cout << "newnode = " << tmp->right->data.first << std::endl;
-					std::cout << "before check_height, val = " << val.first << std::endl;
-					ft::pair<iterator, bool> ret(iterator(tmp->right), true);
-					std::cout << "paire ret = " << ret.first->first << ", " << ret.second << std::endl;
-					check_height(tmp, tmp->height_r);
-					std::cout << "paire ret = " << ret.first->first << ", " << ret.second << std::endl;
-					std::cout << "after check_height, newnode = " << val.first << std::endl;
-					return ret;
-					// return (ft::make_pair(iterator(tmp->right), true));
+					// ft::pair<iterator, bool> ret(iterator(tmp->right), true);
+					check_height(tmp, 'r');
+					// return ret;
+					return (ft::make_pair(iterator(tmp->right), true));
 				}
-				else {
-					std::cout << "continue dans insert avec tmp->right" << std::endl;
+				else
 					return _insert(tmp->right, val);
-				}
 			}
 			else
 				return (ft::make_pair(iterator(tmp), false));
 		}
 
-		void check_height (node_pointer &tmp, int &height) {
-			// std::cout << "start check_height" << std::endl;
-			height++;
-			if (std::abs(tmp->height_l - tmp->height_r) > 1)
-				balance_tree(tmp);
-			if (tmp == _root)
-				return ;
-			if (&height == &tmp->height_l)
-				check_height(tmp->parent, tmp->parent->height_l);
-			else if (&height == &tmp->height_r)
-				check_height(tmp->parent, tmp->parent->height_r);
+		// void my_print() {
+		// 	std::cout << "MY PRINT :" << std::endl;
+		// 	for (iterator it = begin(); it != end(); ++it)
+		// 		std::cout << it->first << "|" << std::flush << it->second << " " << std::flush;
+		// 	std::cout << std::endl
+		// 		<< "size = " << size() << std::endl;
+		// }
+
+		void _insert_node(node_pointer parent, char orientation, const value_type &val) {
+			node_pointer newnode = _nal.allocate(1);
+			_nal.construct(newnode, node(val));
+			if (parent->left == _begin && orientation == 'l') {
+				newnode->left = _begin;
+				_begin->parent = newnode;
+			}
+			else if (parent->right == _end && orientation == 'r') {
+				newnode->right = _end;
+				_end->parent = newnode;
+			}
+			newnode->parent = parent;
+			if (orientation == 'l')
+				parent->left = newnode;
+			else if (orientation == 'r')
+				parent->right = newnode;
+			_n++;
 		}
 
-		void balance_tree (node_pointer &tmp) {
-			std::cout << "start balance tree, height_left = " << tmp->height_l << ", height_right = " << tmp->height_r << std::endl;
+		void check_height (node_pointer tmp, char orientation) {
+			// std::cout << "start check height : tmp = " << tmp->data.first << ", height_left = " << tmp->height_l << ", height_right = " << tmp->height_r << std::endl;
+			// if (orientation == 'l')
+			// 	tmp->height_l++;
+			// else if (orientation == 'r')
+			// 	tmp->height_r++;
+			update_height(tmp, orientation);
+			if (std::abs(tmp->height_l - tmp->height_r) > 1) {
+				tmp = balance_tree(tmp);
+				return;
+			}
+			// if ((tmp->left && tmp->right) || tmp== _root)
+			if (tmp == _root)
+				return ;
+			if (tmp == tmp->parent->left)
+				check_height(tmp->parent, 'l');
+			else if (tmp == tmp->parent->right)
+				check_height(tmp->parent, 'r');
+		}
+
+		void update_height (node_pointer tmp, char orientation) {
+			// int height_child_left;
+			// int height_child_right;
+			// if (tmp->left)
+			// 	height_child_left = std::max(tmp->left->height_l, tmp->left->height_r)
+			// else
+			// 	height_child_left = 0;
+			// if (tmp->right)
+			// 	height_child_right = std::max(tmp->right->height_l, tmp->right->height_r)
+			// else
+			// 	height_child_right = 0;
+			if (orientation == 'l')
+				tmp->height_l = 1 + std::max(tmp->left->height_l, tmp->left->height_r);
+			else if (orientation == 'r')
+				tmp->height_r = 1 + std::max(tmp->right->height_l, tmp->right->height_r);
+		}
+
+		node_pointer balance_tree (node_pointer tmp) {
+			// std::cout << "start balance_tree : tmp = " << tmp->data.first << ", height_left = " << tmp->height_l << ", height_right = " << tmp->height_r << std::endl;
 			if (tmp->height_l > tmp->height_r) {
 				if (tmp->left->height_l > tmp->left->height_r)
-					left_left_balance(tmp, tmp->left);
+					return left_left_balance(tmp, tmp->left);
 				else
-					left_right_balance(tmp, tmp->left, tmp->left->right);
+					return left_right_balance(tmp, tmp->left, tmp->left->right);
 			}
 			else {
 				if (tmp->right->height_r > tmp->right->height_l)
-					right_right_balance(tmp, tmp->left);
+					return right_right_balance(tmp, tmp->right);
 				else
-					right_left_balance(tmp, tmp->left, tmp->left->right);
+					return right_left_balance(tmp, tmp->right, tmp->right->left);
 			}
 		}
 
-		void left_left_balance (node_pointer &node, node_pointer &child) {
+		node_pointer left_left_balance (node_pointer node, node_pointer child) {
+			// std::cout << "start LL rotation" << std::endl;
+			// std::cout << "node = " << node->data.first << ", child = " << child->data.first << ", gchild = " << child->left->data.first << std::endl;
 			moove_parent(node, child);		// Moove parent of node to parent of child
 			node->left = child->right;		// Moove child right-subtree to node left-subtree
 			if (node->left)
@@ -157,8 +192,10 @@ class BST {
 			child->right = node;	
 			child->height_r++;				// Mofify height for all nodes
 			node->height_l -= 2;
+			return child;
 		}
-		void left_right_balance (node_pointer &node, node_pointer &child, node_pointer &gchild) {
+		node_pointer left_right_balance (node_pointer node, node_pointer child, node_pointer gchild) {
+			// std::cout << "start LR rotation" << std::endl;
 			moove_parent(node, gchild);	// Moove parent of node to parent of grandchild
 			child->right = gchild->left;	// Moove grandchild left-subtree to child right-subtree
 			if (child->right)
@@ -174,8 +211,10 @@ class BST {
 			gchild->height_r++;
 			child->height_r--;
 			node->height_l -= 2;
+			return gchild;
 		}
-		void right_right_balance (node_pointer &node, node_pointer &child) {
+		node_pointer right_right_balance (node_pointer node, node_pointer child) {
+			// std::cout << "start RR rotation" << std::endl;
 			moove_parent(node, child);		// Moove parent of node to parent of child
 			node->right = child->left;		// Moove child left-subtree to node right-subtree
 			if (node->right)
@@ -184,8 +223,10 @@ class BST {
 			child->left = node;
 			child->height_l++;				// Mofify height for all nodes
 			node->height_r -= 2;
+			return child;
 		}
-		void right_left_balance (node_pointer &node, node_pointer &child, node_pointer &gchild) {
+		node_pointer right_left_balance (node_pointer node, node_pointer child, node_pointer gchild) {
+			// std::cout << "start RL rotation" << std::endl;
 			moove_parent(node, gchild);		// Moove parent of node to parent of grandchild
 			child->left = gchild->right;	// Moove grandchild right-subtree to child left-subtree
 			if (child->left)
@@ -201,14 +242,17 @@ class BST {
 			gchild->height_l++;
 			child->height_l--;
 			node->height_r -= 2;
+			return gchild;
 		}
 
-		void moove_parent (node_pointer &oldtop, node_pointer &newtop) {
-			if (oldtop->parent == NULL)
+		void moove_parent (node_pointer oldtop, node_pointer newtop) {
+			if (oldtop->parent == NULL) {
 				newtop->parent = NULL;
+				_root = newtop;
+			}
 			else {
 				newtop->parent = oldtop->parent;
-				if (oldtop->parent == oldtop->parent->left)
+				if (oldtop == oldtop->parent->left)
 					newtop->parent->left = newtop;
 				else
 					newtop->parent->right = newtop;
@@ -435,54 +479,23 @@ class BST {
 		void _init_limits () {
 			_begin = _nal.allocate(1);
 			_nal.construct(_begin, node());
-			_begin->b = -1;
+			// _begin->b = -1;
 			_end = _nal.allocate(1);
 			_nal.construct(_end, node());
-			_end->b = 1;
+			// _end->b = 1;
 		}
-		void _insert_node(node_pointer &parent, char orientation, const value_type &val) {
-			node_pointer newnode = _nal.allocate(1);
-			_nal.construct(newnode, node(val));
-			std::cout << "_insert_node : newnode->data.first = " << newnode->data.first << std::endl;
-
-			// if (*branch == _begin) {
-			if (parent->left == _begin && orientation == 'l') {
-				std::cout << "*branch == _begin" << std::endl;
-				// newnode->parent->left = newnode;
-				// *branch = newnode;
-				newnode->left = _begin;
-				_begin->parent = newnode;
-			}
-			// else if (*branch == _end) {
-			else if (parent->right == _end && orientation == 'r') {
-				std::cout << "*branch == _end" << std::endl;
-				// newnode->parent->right = newnode;
-				// *branch = newnode;
-				newnode->right = _end;
-				_end->parent = newnode;
-			}
-			newnode->parent = parent;
-			if (orientation == 'l')
-				parent->left = newnode;
-			else if (orientation == 'r')
-				parent->right = newnode;
-			// else {
-			// 	std::cout << "*branch = " << *branch << std::endl;
-			// 	// *branch = newnode;
-			// }
-			_n++;
-		}
+		
 		void _erase_node (node_pointer to_erase) {
 			_nal.destroy(to_erase);
 			_nal.deallocate(to_erase, 1);
 		}
-		void _set_begin(node_pointer &newnode, node_pointer &parent) {
+		void _set_begin(node_pointer newnode, node_pointer parent) {
 			parent->left = newnode;
 			newnode->parent = parent;
 			newnode->left = _begin;
 			_begin->parent = newnode;
 		}
-		void _set_end(node_pointer &newnode, node_pointer &parent) {
+		void _set_end(node_pointer newnode, node_pointer parent) {
 			parent->right = newnode;
 			newnode->parent = parent;
 			newnode->right = _end;

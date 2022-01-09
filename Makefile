@@ -51,7 +51,12 @@ d				:
 				@python3 TESTER_CONTAINERS42/tester.py -d
 
 test			:
-				@$(COMPIL) $(CPP_FLAGS) -g3 -fsanitize=address zmy_tests/main.cpp -Iinc ; ./a.out ; rm a.out
+				@$(COMPIL) $(CPP_FLAGS) -g3 -fsanitize=address zmy_tests/main.cpp -Iinc -o zmy_tests/mytest; ./zmy_tests/mytest # ; rm zmy_tests/mytest
+				
+
+# Pour utiliser le debugger LLDB : compiler avec flag -g
+ctest			:
+				@$(COMPIL) $(CPP_FLAGS) -g zmy_tests/main.cpp -Iinc -o zmy_tests/mytest 
 
 clean:
 				${RM} $(OBJS)

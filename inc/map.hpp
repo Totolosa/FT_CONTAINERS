@@ -178,6 +178,7 @@ namespace ft {
 			// bool operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
 
 
+			void my_print() { return _tree.myprint(); }
 
 			void print_tree() {
 				// _tree._reset_limits();
