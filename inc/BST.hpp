@@ -73,250 +73,145 @@ class BST {
 			else
 				return _insert(_root, val); 
 		}
-		ft::pair< iterator, bool> _insert (node_pointer tmp, const value_type& val) {
-			// std::cout << "debut _insert : val = " << val.first << ", tmp = " << tmp->data.first << std::endl;
-			if (_comp(val.first, tmp->data.first)) {
-				if (tmp->left == NULL || tmp->left == _begin) {
-					_insert_node(tmp, 'l', val);
-					// ft::pair<iterator, bool> ret(iterator(tmp->left), true);
-					check_height(tmp, 'l');
-					// return ret;
-					return (ft::make_pair(iterator(tmp->left), true));
-				}
+		
+		bool erase(key_type const & k) {
+			if (_n == 0)
+				return false;
+
+			return _erase(_root, k);
+		}
+
+		bool _erase(node_pointer tmp, key_type const & k) {
+			if (_comp(k, tmp->data.first)) {
+				if (tmp->left == NULL || tmp->left == _begin)
+					return false;
 				else
-					return _insert(tmp->left, val);
+					return _erase(tmp->left, k);
 			}
-			else if (_comp(tmp->data.first, val.first)) {
-				if (tmp->right == NULL || tmp->right == _end) {
-					_insert_node(tmp, 'r', val);
-					// ft::pair<iterator, bool> ret(iterator(tmp->right), true);
-					check_height(tmp, 'r');
-					// return ret;
-					return (ft::make_pair(iterator(tmp->right), true));
-				}
+			else if (_comp(tmp->data.first, k)) {
+				if (tmp->right == NULL || tmp->right == _end)
+					return false;
 				else
-					return _insert(tmp->right, val);
+					return _erase(tmp->right, k);
 			}
+			else {
+				tmp = _delete_node(tmp);
+				_check_height(tmp);
+				_assign_limits();
+				return true;
+			}
+		}
+
+		node_pointer _delete_node(node_pointer tmp) {
+			if (!tmp->left && !tmp->right)
+				return _no_child(tmp);
+			if (tmp->left && !tmp->right)
+				return _left_child(tmp);
+			if (tmp->right && !tmp->left)
+				return _right_child(tmp);
 			else
-				return (ft::make_pair(iterator(tmp), false));
+				return _two_child(tmp);
 		}
 
-		// void my_print() {
-		// 	std::cout << "MY PRINT :" << std::endl;
-		// 	for (iterator it = begin(); it != end(); ++it)
-		// 		std::cout << it->first << "|" << std::flush << it->second << " " << std::flush;
-		// 	std::cout << std::endl
-		// 		<< "size = " << size() << std::endl;
-		// }
-
-		void _insert_node(node_pointer parent, char orientation, const value_type &val) {
-			node_pointer newnode = _nal.allocate(1);
-			_nal.construct(newnode, node(val));
-			if (parent->left == _begin && orientation == 'l') {
-				newnode->left = _begin;
-				_begin->parent = newnode;
-			}
-			else if (parent->right == _end && orientation == 'r') {
-				newnode->right = _end;
-				_end->parent = newnode;
-			}
-			newnode->parent = parent;
-			if (orientation == 'l')
-				parent->left = newnode;
-			else if (orientation == 'r')
-				parent->right = newnode;
-			_n++;
+		node_pointer _no_child(node_pointer to_erase) {
+			if (to_erase != _root && to_erase->parent->left == to_erase)
+				to_erase->parent->left = NULL;
+			else if (to_erase != _root && to_erase->parent->right == to_erase)
+				to_erase->parent->right = NULL;
+			node_pointer ret = to_erase->parent;
+			_erase_node(to_erase);
+			return ret;
 		}
 
-		void check_height (node_pointer tmp, char orientation) {
-			// std::cout << "start check height : tmp = " << tmp->data.first << ", height_left = " << tmp->height_l << ", height_right = " << tmp->height_r << std::endl;
-			// if (orientation == 'l')
-			// 	tmp->height_l++;
-			// else if (orientation == 'r')
-			// 	tmp->height_r++;
-			update_height(tmp, orientation);
-			if (std::abs(tmp->height_l - tmp->height_r) > 1) {
-				tmp = balance_tree(tmp);
-				return;
+		node_pointer _left_child(node_pointer to_erase) {
+			_moove_parent(to_erase, to_erase->left)
+			// if (to_erase != _root && to_erase->parent->left == to_erase)
+			// 	to_erase->parent->left = to_erase->left;
+			// else if (to_erase != _root && to_erase->parent->right == to_erase)
+			// 	to_erase->parent->right = to_erase->left;
+			// if (to_erase == _root)
+			// 	_root = to_erase->left;
+			// to_erase->left->parent = to_erase->parent;
+			node_pointer ret = to_erase->parent;
+			_erase_node(to_erase);
+			return ret;
+		}
+
+		node_pointer _right_child(node_pointer to_erase) {
+			_moove_parent(to_erase, to_erase->right)
+			// if (to_erase != _root && to_erase->parent->left == to_erase)
+			// 	to_erase->parent->left = to_erase->left;
+			// else if (to_erase != _root && to_erase->parent->right == to_erase)
+			// 	to_erase->parent->right = to_erase->left;
+			// if (to_erase == _root)
+			// 	_root = to_erase->left;
+			// to_erase->left->parent = to_erase->parent;
+			node_pointer ret = to_erase->parent;
+			_erase_node(to_erase);
+			return ret;
+		}
+
+		node_pointer _two_child(node_pointer to_erase) {
+			node_pointer tmp = to_erase->right;
+			while (tmp->left)
+				tmp = tmp->left;
+			if (tmp == to_erase->right) {
+				tmp->left = to_erase->left;
+				tmp->left->parent = tmp;
+				_moove_parent(to_erase, tmp);
+				_erase_node(to_erase);
+				return tmp;
 			}
-			// if ((tmp->left && tmp->right) || tmp== _root)
-			if (tmp == _root)
+			else {
+				tmp->parent->left = tmp->right;
+				if (tmp->right)
+					tmp->right->parent = tmp->parent;
+				tmp->left = to_erase->left;
+				tmp->left->parent = tmp;
+				tmp->right = to_erase->right;
+				tmp->right->parent = tmp;
+				node_pointer ret = tmp->parent;
+				_moove_parent(to_erase, tmp);
+				_erase_node(to_erase);
+				return tmp->parent;
+			}
+		}
+
+
+
+		void _erase_node (node_pointer to_erase) {
+			// node_pointer parent = to_erase->parent;
+			// if (parent && parent->left == to_erase)
+			// 	parent->left = NULL;
+			// else if (parent && parent->right == to_erase)
+			// 	parent->right = NULL;
+			_nal.destroy(to_erase);
+			_nal.deallocate(to_erase, 1);
+			_n--;
+			// return parent;
+		}
+
+		void _assign_limits() {
+			node_pointer tmp = _root;
+			if (_n == 0) {
+				_begin->parent = NULL;
+				_end->parent = NULL;
+				_root = NULL;
 				return ;
-			if (tmp == tmp->parent->left)
-				check_height(tmp->parent, 'l');
-			else if (tmp == tmp->parent->right)
-				check_height(tmp->parent, 'r');
-		}
-
-		void update_height (node_pointer tmp, char orientation) {
-			// int height_child_left;
-			// int height_child_right;
-			// if (tmp->left)
-			// 	height_child_left = std::max(tmp->left->height_l, tmp->left->height_r)
-			// else
-			// 	height_child_left = 0;
-			// if (tmp->right)
-			// 	height_child_right = std::max(tmp->right->height_l, tmp->right->height_r)
-			// else
-			// 	height_child_right = 0;
-			if (orientation == 'l')
-				tmp->height_l = 1 + std::max(tmp->left->height_l, tmp->left->height_r);
-			else if (orientation == 'r')
-				tmp->height_r = 1 + std::max(tmp->right->height_l, tmp->right->height_r);
-		}
-
-		node_pointer balance_tree (node_pointer tmp) {
-			// std::cout << "start balance_tree : tmp = " << tmp->data.first << ", height_left = " << tmp->height_l << ", height_right = " << tmp->height_r << std::endl;
-			if (tmp->height_l > tmp->height_r) {
-				if (tmp->left->height_l > tmp->left->height_r)
-					return left_left_balance(tmp, tmp->left);
-				else
-					return left_right_balance(tmp, tmp->left, tmp->left->right);
 			}
-			else {
-				if (tmp->right->height_r > tmp->right->height_l)
-					return right_right_balance(tmp, tmp->right);
-				else
-					return right_left_balance(tmp, tmp->right, tmp->right->left);
-			}
+			while (tmp->left)
+				tmp = tmp->left;
+			_begin->parent->left = NULL;
+			_begin->parent = tmp;
+			tmp->left = _begin;
+			tmp = _root;
+			while (tmp->right)
+				tmp = tmp->right;
+			_end->parent->right = NULL;
+			_end->parent = tmp;
+			tmp->right = _end;
 		}
 
-		node_pointer left_left_balance (node_pointer node, node_pointer child) {
-			// std::cout << "start LL rotation" << std::endl;
-			// std::cout << "node = " << node->data.first << ", child = " << child->data.first << ", gchild = " << child->left->data.first << std::endl;
-			moove_parent(node, child);		// Moove parent of node to parent of child
-			node->left = child->right;		// Moove child right-subtree to node left-subtree
-			if (node->left)
-				node->left->parent = node;
-			node->parent = child;			// The parent of node become the child
-			child->right = node;	
-			child->height_r++;				// Mofify height for all nodes
-			node->height_l -= 2;
-			return child;
-		}
-		node_pointer left_right_balance (node_pointer node, node_pointer child, node_pointer gchild) {
-			// std::cout << "start LR rotation" << std::endl;
-			moove_parent(node, gchild);	// Moove parent of node to parent of grandchild
-			child->right = gchild->left;	// Moove grandchild left-subtree to child right-subtree
-			if (child->right)
-				child->right->parent = child;
-			node->left = gchild->right;		// Moove grandchild right-subtree to node left-subtree
-			if (node->left)
-				node->left->parent = node;
-			child->parent = gchild;			// The parent of child become the grandchild
-			gchild->left = child;
-			node->parent = gchild;			// The parent of node become the grandchild
-			gchild->right = node;
-			gchild->height_l++;				// Mofify height for all nodes
-			gchild->height_r++;
-			child->height_r--;
-			node->height_l -= 2;
-			return gchild;
-		}
-		node_pointer right_right_balance (node_pointer node, node_pointer child) {
-			// std::cout << "start RR rotation" << std::endl;
-			moove_parent(node, child);		// Moove parent of node to parent of child
-			node->right = child->left;		// Moove child left-subtree to node right-subtree
-			if (node->right)
-				node->right->parent = node;
-			node->parent = child;			// The parent of node become the child
-			child->left = node;
-			child->height_l++;				// Mofify height for all nodes
-			node->height_r -= 2;
-			return child;
-		}
-		node_pointer right_left_balance (node_pointer node, node_pointer child, node_pointer gchild) {
-			// std::cout << "start RL rotation" << std::endl;
-			moove_parent(node, gchild);		// Moove parent of node to parent of grandchild
-			child->left = gchild->right;	// Moove grandchild right-subtree to child left-subtree
-			if (child->left)
-				child->left->parent = child;
-			node->right = gchild->left;		// Moove grandchild left-subtree to node right-subtree
-			if (node->right)
-				node->right->parent = node;
-			child->parent = gchild;			// The parent of child become the grandchild
-			gchild->right = child;
-			node->parent = gchild;			// The parent of node become the grandchild
-			gchild->left = node;
-			gchild->height_r++;				// Mofify height for all nodes
-			gchild->height_l++;
-			child->height_l--;
-			node->height_r -= 2;
-			return gchild;
-		}
-
-		void moove_parent (node_pointer oldtop, node_pointer newtop) {
-			if (oldtop->parent == NULL) {
-				newtop->parent = NULL;
-				_root = newtop;
-			}
-			else {
-				newtop->parent = oldtop->parent;
-				if (oldtop == oldtop->parent->left)
-					newtop->parent->left = newtop;
-				else
-					newtop->parent->right = newtop;
-			}
-		}
-
-
-		// ft::pair< iterator, bool> insert (const value_type& val) { 
-		// 	if (!_root) {
-		// 		node_pointer newnode = _nal.allocate(1);
-		// 		_nal.construct(newnode, node(val));
-		// 		_root = newnode;
-		// 		newnode->parent = NULL;
-		// 		newnode->left = _begin;
-		// 		_begin->parent = newnode;
-		// 		newnode->right = _end;
-		// 		_end->parent = newnode;
-		// 		_n++;
-		// 		return (ft::make_pair(iterator(_root), false));
-		// 	}
-		// 	else {
-		// 		node_pointer tmp = _root;
-		// 		node_pointer parent = NULL;
-		// 		char last;
-		// 		while (tmp && tmp != _begin && tmp != _end) {
-		// 			parent = tmp;
-		// 			if (_comp(val.first, tmp->data.first)) {
-		// 				// std::cout << "insert <" << std::endl;
-		// 				tmp = tmp->left;
-		// 				last = 'l';
-		// 			}
-		// 			else if (_comp(tmp->data.first, val.first)) {
-		// 				// std::cout << "insert >" << std::endl;
-		// 				tmp = tmp->right;
-		// 				last = 'r';
-		// 			}
-		// 			else
-		// 				return (ft::make_pair(iterator(tmp), false));
-		// 		}
-		// 		// std::cout << "ICI, _n = " << _n << std::endl;
-		// 		node_pointer newnode = _nal.allocate(1);
-		// 		_nal.construct(newnode, node(val));
-		// 		if (!tmp) {
-		// 			// std::cout << "!tmp" << std::endl;
-		// 			newnode->parent = parent;
-		// 			if (last == 'l')
-		// 				parent->left = newnode;
-		// 			else if (last == 'r')
-		// 				parent->right = newnode;
-		// 			// _insert_node(newnode, parent);
-		// 		}
-		// 		else if (tmp == _begin) {
-		// 			// std::cout << "tmp == begin" << std::endl;
-		// 			_set_begin(newnode, tmp->parent);
-		// 		}
-		// 		else if (tmp == _end) {
-		// 			// std::cout << "tmp == end" << std::endl;
-		// 			_set_end(newnode, tmp->parent);
-		// 		}
-		// 		_n++;
-		// 		return (ft::make_pair(iterator(newnode), true));
-		// 	}
-		// 	// return _insert(_root, val); 
-		// }
 		bool erase(key_type const & k, iterator it) {
 			node_pointer tmp;
 			if (it == end())
@@ -401,9 +296,7 @@ class BST {
 			return true;
 
 		}
-		// void erase(iterator & start, iterator & end) {
-		// 	iterator tmp = _search_key();
-		// }
+
 		void clear() {
 			if (_n == 0)
 				return ;
@@ -463,6 +356,8 @@ class BST {
 			return *this;
 		}
 
+		//		--> TO PRINT MAP <--
+
 		int height(node_pointer node) {
 			if (node->left == 0 && node->right == 0)
 				return 1;
@@ -475,6 +370,7 @@ class BST {
 		}
 		node_alloc get_allocator() const { return _nal; }
 
+
 	private:
 		void _init_limits () {
 			_begin = _nal.allocate(1);
@@ -485,22 +381,183 @@ class BST {
 			// _end->b = 1;
 		}
 		
-		void _erase_node (node_pointer to_erase) {
-			_nal.destroy(to_erase);
-			_nal.deallocate(to_erase, 1);
+		//		--> INSERT <--
+
+		ft::pair< iterator, bool> _insert (node_pointer tmp, const value_type& val) {
+			// std::cout << "debut _insert : val = " << val.first << ", tmp = " << tmp->data.first << std::endl;
+			if (_comp(val.first, tmp->data.first)) {
+				if (tmp->left == NULL || tmp->left == _begin) {
+					_insert_node(tmp, 'l', val);
+					// ft::pair<iterator, bool> ret(iterator(tmp->left), true);
+					_check_height(tmp, 'l');
+					// return ret;
+					return (ft::make_pair(iterator(tmp->left), true));
+				}
+				else
+					return _insert(tmp->left, val);
+			}
+			else if (_comp(tmp->data.first, val.first)) {
+				if (tmp->right == NULL || tmp->right == _end) {
+					_insert_node(tmp, 'r', val);
+					// ft::pair<iterator, bool> ret(iterator(tmp->right), true);
+					_check_height(tmp, 'r');
+					// return ret;
+					return (ft::make_pair(iterator(tmp->right), true));
+				}
+				else
+					return _insert(tmp->right, val);
+			}
+			else
+				return (ft::make_pair(iterator(tmp), false));
 		}
-		void _set_begin(node_pointer newnode, node_pointer parent) {
-			parent->left = newnode;
+
+		void _insert_node(node_pointer parent, char orientation, const value_type &val) {
+			node_pointer newnode = _nal.allocate(1);
+			_nal.construct(newnode, node(val));
+			if (parent->left == _begin && orientation == 'l') {
+				newnode->left = _begin;
+				_begin->parent = newnode;
+			}
+			else if (parent->right == _end && orientation == 'r') {
+				newnode->right = _end;
+				_end->parent = newnode;
+			}
 			newnode->parent = parent;
-			newnode->left = _begin;
-			_begin->parent = newnode;
+			if (orientation == 'l')
+				parent->left = newnode;
+			else if (orientation == 'r')
+				parent->right = newnode;
+			_n++;
 		}
-		void _set_end(node_pointer newnode, node_pointer parent) {
-			parent->right = newnode;
-			newnode->parent = parent;
-			newnode->right = _end;
-			_end->parent = newnode;
+
+		void _check_height (node_pointer tmp, char orientation) {
+			// std::cout << "start check height : tmp = " << tmp->data.first << ", height_left = " << tmp->height_l << ", height_right = " << tmp->height_r << std::endl;
+			if (orientation == 'l')
+				tmp->height_l = 1 + std::max(tmp->left->height_l, tmp->left->height_r);
+			else if (orientation == 'r')
+				tmp->height_r = 1 + std::max(tmp->right->height_l, tmp->right->height_r);
+			update_height(tmp, orientation);
+			if (std::abs(tmp->height_l - tmp->height_r) > 1) {
+				tmp = _balance_tree(tmp);
+				return;
+			}
+			if (tmp == _root)
+				return ;
+			if (tmp == tmp->parent->left)
+				_check_height(tmp->parent, 'l');
+			else if (tmp == tmp->parent->right)
+				_check_height(tmp->parent, 'r');
 		}
+
+		node_pointer _balance_tree (node_pointer tmp) {
+			// std::cout << "start _balance_tree : tmp = " << tmp->data.first << ", height_left = " << tmp->height_l << ", height_right = " << tmp->height_r << std::endl;
+			if (tmp->height_l > tmp->height_r) {
+				if (tmp->left->height_l > tmp->left->height_r)
+					return _left_left_balance(tmp, tmp->left);
+				else
+					return _left_right_balance(tmp, tmp->left, tmp->left->right);
+			}
+			else {
+				if (tmp->right->height_r > tmp->right->height_l)
+					return _right_right_balance(tmp, tmp->right);
+				else
+					return _right_left_balance(tmp, tmp->right, tmp->right->left);
+			}
+		}
+
+		node_pointer _left_left_balance (node_pointer node, node_pointer child) {
+			// std::cout << "start LL rotation" << std::endl;
+			// std::cout << "node = " << node->data.first << ", child = " << child->data.first << ", gchild = " << child->left->data.first << std::endl;
+			_moove_parent(node, child);		// Moove parent of node to parent of child
+			node->left = child->right;		// Moove child right-subtree to node left-subtree
+			if (node->left)
+				node->left->parent = node;
+			node->parent = child;			// The parent of node become the child
+			child->right = node;	
+			child->height_r++;				// Mofify height for all nodes
+			node->height_l -= 2;
+			return child;
+		}
+		node_pointer _left_right_balance (node_pointer node, node_pointer child, node_pointer gchild) {
+			// std::cout << "start LR rotation" << std::endl;
+			_moove_parent(node, gchild);	// Moove parent of node to parent of grandchild
+			child->right = gchild->left;	// Moove grandchild left-subtree to child right-subtree
+			if (child->right)
+				child->right->parent = child;
+			node->left = gchild->right;		// Moove grandchild right-subtree to node left-subtree
+			if (node->left)
+				node->left->parent = node;
+			child->parent = gchild;			// The parent of child become the grandchild
+			gchild->left = child;
+			node->parent = gchild;			// The parent of node become the grandchild
+			gchild->right = node;
+			gchild->height_l++;				// Mofify height for all nodes
+			gchild->height_r++;
+			child->height_r--;
+			node->height_l -= 2;
+			return gchild;
+		}
+		node_pointer _right_right_balance (node_pointer node, node_pointer child) {
+			// std::cout << "start RR rotation" << std::endl;
+			_moove_parent(node, child);		// Moove parent of node to parent of child
+			node->right = child->left;		// Moove child left-subtree to node right-subtree
+			if (node->right)
+				node->right->parent = node;
+			node->parent = child;			// The parent of node become the child
+			child->left = node;
+			child->height_l++;				// Mofify height for all nodes
+			node->height_r -= 2;
+			return child;
+		}
+		node_pointer _right_left_balance (node_pointer node, node_pointer child, node_pointer gchild) {
+			// std::cout << "start RL rotation" << std::endl;
+			_moove_parent(node, gchild);		// Moove parent of node to parent of grandchild
+			child->left = gchild->right;	// Moove grandchild right-subtree to child left-subtree
+			if (child->left)
+				child->left->parent = child;
+			node->right = gchild->left;		// Moove grandchild left-subtree to node right-subtree
+			if (node->right)
+				node->right->parent = node;
+			child->parent = gchild;			// The parent of child become the grandchild
+			gchild->right = child;
+			node->parent = gchild;			// The parent of node become the grandchild
+			gchild->left = node;
+			gchild->height_r++;				// Mofify height for all nodes
+			gchild->height_l++;
+			child->height_l--;
+			node->height_r -= 2;
+			return gchild;
+		}
+
+		void _moove_parent (node_pointer oldtop, node_pointer newtop) {
+			if (oldtop->parent == NULL) {
+				newtop->parent = NULL;
+				_root = newtop;
+			}
+			else {
+				newtop->parent = oldtop->parent;
+				if (oldtop == oldtop->parent->left)
+					newtop->parent->left = newtop;
+				else
+					newtop->parent->right = newtop;
+			}
+		}
+
+		//		--> ERASE <--
+
+
+		// void _set_begin(node_pointer newnode, node_pointer parent) {
+		// 	parent->left = newnode;
+		// 	newnode->parent = parent;
+		// 	newnode->left = _begin;
+		// 	_begin->parent = newnode;
+		// }
+		// void _set_end(node_pointer newnode, node_pointer parent) {
+		// 	parent->right = newnode;
+		// 	newnode->parent = parent;
+		// 	newnode->right = _end;
+		// 	_end->parent = newnode;
+		// }
 		node_pointer _search_key(node_pointer tmp, key_type const & key) const {
 			// std::cout << "key = " << key << ", tmp->key = " << tmp->data.first << std::endl;
 			if (!tmp || tmp == _begin || tmp == _end)

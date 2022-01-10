@@ -97,8 +97,8 @@ namespace ft {
 			// 	while (first != last)
 			// 		insert(*(first++));
 			// }
-			void erase (iterator position) { _tree.erase(position->first, position); }
-			size_type erase (const key_type& k) { return _tree.erase(k, _tree.end()); }
+			void erase (iterator position) { _tree.erase(position->first); }
+			size_type erase (const key_type& k) { return _tree.erase(k); }
 			void erase (iterator first, iterator last) {
 				while (first != last)
 					erase((first++)->first);
