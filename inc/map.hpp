@@ -152,9 +152,11 @@ namespace ft {
 			//		--> OPERATORS <--
 
 			mapped_type& operator[] (const key_type& k) {
+				// std::cout << "k = " << k << std::endl;
 				return (insert(make_pair(k, mapped_type())).first)->second;
 			}
 			map& operator=(const map& x) {
+				// std::cout << "operator = map" << std::endl;
 				_comp = x._comp;
 				_alloc = x._alloc;
 				_tree = x._tree;

@@ -157,6 +157,7 @@ int main() {
 	// print_map<std::map<int, NoLeaksPlease> >(ms);
 	end1 = std::chrono::system_clock::now();
 	std::cout << "time lib insert = " << (end1 - start1).count() << std::endl;
+	std::cout << "TEST" << std::endl;
 
 	// std::cout << "size mm = " << mm.size() << ", size ms = " << ms.size() << std::endl;
 	// ft::map<int, NoLeaksPlease>::iterator it = mm.begin();	
@@ -179,7 +180,37 @@ int main() {
 	// std::cout << "(begin == its) = " << (its == ms.begin()) << std::endl;
 
 	// std::cout << "erase(4) moi = " << mm.erase(4) << std::endl;
+	// mm.print_tree();
+	// print_map<ft::map<int, NoLeaksPlease> >(mm);
 	// std::cout << "erase(4) lib = " << ms.erase(4) << std::endl;
+	std::cout << "erase(5) moi = " << mm.erase(5) << std::endl;
+	std::cout << "erase(5) lib = " << ms.erase(5) << std::endl;
+	mm.print_tree();
+	print_map<ft::map<int, NoLeaksPlease> >(mm);
+	std::cout << "erase(7) moi = " << mm.erase(7) << std::endl;
+	std::cout << "erase(7) lib = " << ms.erase(7) << std::endl;
+	mm.print_tree();
+	print_map<ft::map<int, NoLeaksPlease> >(mm);
+	std::cout << "erase(8) moi = " << mm.erase(8) << std::endl;
+	std::cout << "erase(8) lib = " << ms.erase(8) << std::endl;
+	mm.print_tree();
+	print_map<ft::map<int, NoLeaksPlease> >(mm);
+	std::cout << "erase(4) moi = " << mm.erase(4) << std::endl;
+	std::cout << "erase(4) lib = " << ms.erase(4) << std::endl;
+	mm.print_tree();
+	print_map<ft::map<int, NoLeaksPlease> >(mm);
+	std::cout << "erase(9) moi = " << mm.erase(9) << std::endl;
+	std::cout << "erase(9) lib = " << ms.erase(9) << std::endl;
+	mm.print_tree();
+	print_map<ft::map<int, NoLeaksPlease> >(mm);
+	std::cout << "erase(666) moi = " << mm.erase(666) << std::endl;
+	std::cout << "erase(666) lib = " << ms.erase(666) << std::endl;
+	mm.print_tree();
+	print_map<ft::map<int, NoLeaksPlease> >(mm);
+	mm.clear();
+	// mm.print_tree();
+	print_map<ft::map<int, NoLeaksPlease> >(mm);
+	// print_map<ft::map<int, NoLeaksPlease> >(mm);
 	// print_map<ft::map<int, NoLeaksPlease> >(mm);
 	// print_map<std::map<int, NoLeaksPlease> >(ms);
 	// std::cout << "erase(3) moi = " << mm.erase(3) << std::endl;

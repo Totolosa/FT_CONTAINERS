@@ -72,12 +72,17 @@ class BST {
 			}
 			else
 				return _insert(_root, val); 
+			// else {
+				// std::cout << "test" << std::endl;
+				// ft::pair< iterator, bool> ret = _insert(_root, val);
+				// std::cout << ret.first << std::endl;
+				// return ret;
+			// }
 		}
 		
 		bool erase(key_type const & k) {
 			if (_n == 0)
 				return false;
-
 			return _erase(_root, k);
 		}
 
@@ -95,14 +100,17 @@ class BST {
 					return _erase(tmp->right, k);
 			}
 			else {
-				tmp = _delete_node(tmp);
-				_check_height(tmp);
+				ft::pair<node_pointer, char> ret = _delete_node(tmp);
+				// tmp = _delete_node(tmp);
+				// if (tmp != NULL)
+				if (ret.first != NULL)
+					_check_height(ret.first, ret.second);
 				_assign_limits();
 				return true;
 			}
 		}
 
-		node_pointer _delete_node(node_pointer tmp) {
+		ft::pair<node_pointer, char> _delete_node(node_pointer tmp) {
 			if (!tmp->left && !tmp->right)
 				return _no_child(tmp);
 			if (tmp->left && !tmp->right)
@@ -113,18 +121,17 @@ class BST {
 				return _two_child(tmp);
 		}
 
-		node_pointer _no_child(node_pointer to_erase) {
+		ft::pair<node_pointer, char> _no_child(node_pointer to_erase) {
+			ft::pair<node_pointer, char> ret = pair_delete(to_erase, to_erase->parent);
 			if (to_erase != _root && to_erase->parent->left == to_erase)
 				to_erase->parent->left = NULL;
 			else if (to_erase != _root && to_erase->parent->right == to_erase)
 				to_erase->parent->right = NULL;
-			node_pointer ret = to_erase->parent;
 			_erase_node(to_erase);
 			return ret;
 		}
 
-		node_pointer _left_child(node_pointer to_erase) {
-			_moove_parent(to_erase, to_erase->left)
+		ft::pair<node_pointer, char> _left_child(node_pointer to_erase) {
 			// if (to_erase != _root && to_erase->parent->left == to_erase)
 			// 	to_erase->parent->left = to_erase->left;
 			// else if (to_erase != _root && to_erase->parent->right == to_erase)
@@ -132,13 +139,14 @@ class BST {
 			// if (to_erase == _root)
 			// 	_root = to_erase->left;
 			// to_erase->left->parent = to_erase->parent;
-			node_pointer ret = to_erase->parent;
+			// node_pointer ret = to_erase->parent;
+			ft::pair<node_pointer, char> ret = pair_delete(to_erase, to_erase->parent);
+			_moove_parent(to_erase, to_erase->left);
 			_erase_node(to_erase);
 			return ret;
 		}
 
-		node_pointer _right_child(node_pointer to_erase) {
-			_moove_parent(to_erase, to_erase->right)
+		ft::pair<node_pointer, char> _right_child(node_pointer to_erase) {
 			// if (to_erase != _root && to_erase->parent->left == to_erase)
 			// 	to_erase->parent->left = to_erase->left;
 			// else if (to_erase != _root && to_erase->parent->right == to_erase)
@@ -146,21 +154,26 @@ class BST {
 			// if (to_erase == _root)
 			// 	_root = to_erase->left;
 			// to_erase->left->parent = to_erase->parent;
-			node_pointer ret = to_erase->parent;
+			// node_pointer ret = to_erase->parent;
+			ft::pair<node_pointer, char> ret = pair_delete(to_erase, to_erase->parent);
+			_moove_parent(to_erase, to_erase->right);
 			_erase_node(to_erase);
 			return ret;
 		}
 
-		node_pointer _two_child(node_pointer to_erase) {
+		ft::pair<node_pointer, char> _two_child(node_pointer to_erase) {
 			node_pointer tmp = to_erase->right;
 			while (tmp->left)
 				tmp = tmp->left;
 			if (tmp == to_erase->right) {
+				// ft::pair<node_pointer, char> ret = pair_delete(to_erase, tmp);
 				tmp->left = to_erase->left;
 				tmp->left->parent = tmp;
+				tmp->height_l = to_erase->height_l;
 				_moove_parent(to_erase, tmp);
 				_erase_node(to_erase);
-				return tmp;
+				// return tmp;
+				return ft::make_pair(tmp, 'l');
 			}
 			else {
 				tmp->parent->left = tmp->right;
@@ -170,14 +183,23 @@ class BST {
 				tmp->left->parent = tmp;
 				tmp->right = to_erase->right;
 				tmp->right->parent = tmp;
-				node_pointer ret = tmp->parent;
+				tmp->height_l = to_erase->height_l;
+				node_pointer parent = tmp->parent;
 				_moove_parent(to_erase, tmp);
 				_erase_node(to_erase);
-				return tmp->parent;
+				// return ret;
+				return ft::make_pair(parent, 'l');
 			}
 		}
 
-
+		ft::pair<node_pointer, char> pair_delete(node_pointer to_erase, node_pointer pointer) {
+			char orientation;
+			if (to_erase != _root && to_erase->parent->left == to_erase)
+				orientation = 'l';
+			if (to_erase != _root && to_erase->parent->right == to_erase)
+				orientation = 'r';
+			return ft::make_pair(pointer, orientation);
+		}
 
 		void _erase_node (node_pointer to_erase) {
 			// node_pointer parent = to_erase->parent;
@@ -195,115 +217,118 @@ class BST {
 			node_pointer tmp = _root;
 			if (_n == 0) {
 				_begin->parent = NULL;
+				_begin->left = NULL;
+				_begin->right = NULL;
 				_end->parent = NULL;
+				_end->left = NULL;
+				_end->right = NULL;
 				_root = NULL;
 				return ;
 			}
-			while (tmp->left)
+			while (tmp->left && tmp->left != _begin)
 				tmp = tmp->left;
 			_begin->parent->left = NULL;
 			_begin->parent = tmp;
 			tmp->left = _begin;
 			tmp = _root;
-			while (tmp->right)
+			while (tmp->right && tmp->right != _end)
 				tmp = tmp->right;
 			_end->parent->right = NULL;
 			_end->parent = tmp;
 			tmp->right = _end;
 		}
 
-		bool erase(key_type const & k, iterator it) {
-			node_pointer tmp;
-			if (it == end())
-				tmp = _search_key(_root, k);
-			else
-				tmp = it.getptr();
-			if (tmp == _end) {
-				// std::cout << "number to erase not fount" << std::endl;
-				return false;
-			}
-			if (_n == 1) {
-				_begin->parent = NULL;
-				_end->parent = NULL;
-			}
-			else if (tmp->left == _begin) {
-				// std::cout << "tmp->left = _begin" << std::endl;
-				if (tmp->right) {
-					tmp->right->parent = tmp->parent;
-					tmp->parent->left = tmp->right;
-					_begin->parent = tmp->right;
-					tmp->right->left = _begin;
-				}
-				else {
-					_begin->parent = tmp->parent;
-					tmp->parent->left = _begin;
-				}
-			}
-			else if (tmp->right == _end) {
-				// std::cout << "tmp->right = _end" << std::endl;
-				if (tmp->left) {
-					tmp->left->parent = tmp->parent;
-					tmp->parent->right = tmp->left;
-					_end->parent = tmp->left;
-					tmp->left->right = _end;
-				}
-				else {
-					_end->parent = tmp->parent;
-					tmp->parent->right = _end;
-				}
-			}
-			else if (tmp->right && tmp->left) {
-				node_pointer tmp2 = tmp->right;
-				while (tmp2->left)
-					tmp2 = tmp2->left;
-				if (tmp->right->left) {
-					tmp2->parent->left = tmp2->right;
-					if (tmp2->right)
-						tmp2->right->parent = tmp2->parent;
-				}
-				tmp2->parent = tmp->parent;
-				tmp2->left = tmp->left;
-				if (tmp2->left)
-					tmp2->left->parent = tmp2;
-				tmp->parent->right = tmp2;
-				tmp2->right = tmp->right;
-			}
-			else if (tmp->left) {
-				if (tmp == tmp->parent->right)
-					tmp->parent->right = tmp->left;
-				else
-					tmp->parent->left = tmp->left;
-				// tmp->parent->left = tmp->left;
-				tmp->left->parent = tmp->parent;
-			}
-			else if (tmp->right) {
-				if (tmp == tmp->parent->right)
-					tmp->parent->right = tmp->right;
-				else
-					tmp->parent->left = tmp->right;
-				// tmp->parent->right = tmp->right;
-				tmp->right->parent = tmp->parent;
-			}
-			else {
-				if (tmp == tmp->parent->right)
-					tmp->parent->right = NULL;
-				else
-					tmp->parent->left = NULL;
-			}
-			_nal.destroy(tmp);
-			_nal.deallocate(tmp, 1);
-			_n--;
-			return true;
+		// bool erase(key_type const & k, iterator it) {
+		// 	node_pointer tmp;
+		// 	if (it == end())
+		// 		tmp = _search_key(_root, k);
+		// 	else
+		// 		tmp = it.getptr();
+		// 	if (tmp == _end) {
+		// 		// std::cout << "number to erase not fount" << std::endl;
+		// 		return false;
+		// 	}
+		// 	if (_n == 1) {
+		// 		_begin->parent = NULL;
+		// 		_end->parent = NULL;
+		// 	}
+		// 	else if (tmp->left == _begin) {
+		// 		// std::cout << "tmp->left = _begin" << std::endl;
+		// 		if (tmp->right) {
+		// 			tmp->right->parent = tmp->parent;
+		// 			tmp->parent->left = tmp->right;
+		// 			_begin->parent = tmp->right;
+		// 			tmp->right->left = _begin;
+		// 		}
+		// 		else {
+		// 			_begin->parent = tmp->parent;
+		// 			tmp->parent->left = _begin;
+		// 		}
+		// 	}
+		// 	else if (tmp->right == _end) {
+		// 		// std::cout << "tmp->right = _end" << std::endl;
+		// 		if (tmp->left) {
+		// 			tmp->left->parent = tmp->parent;
+		// 			tmp->parent->right = tmp->left;
+		// 			_end->parent = tmp->left;
+		// 			tmp->left->right = _end;
+		// 		}
+		// 		else {
+		// 			_end->parent = tmp->parent;
+		// 			tmp->parent->right = _end;
+		// 		}
+		// 	}
+		// 	else if (tmp->right && tmp->left) {
+		// 		node_pointer tmp2 = tmp->right;
+		// 		while (tmp2->left)
+		// 			tmp2 = tmp2->left;
+		// 		if (tmp->right->left) {
+		// 			tmp2->parent->left = tmp2->right;
+		// 			if (tmp2->right)
+		// 				tmp2->right->parent = tmp2->parent;
+		// 		}
+		// 		tmp2->parent = tmp->parent;
+		// 		tmp2->left = tmp->left;
+		// 		if (tmp2->left)
+		// 			tmp2->left->parent = tmp2;
+		// 		tmp->parent->right = tmp2;
+		// 		tmp2->right = tmp->right;
+		// 	}
+		// 	else if (tmp->left) {
+		// 		if (tmp == tmp->parent->right)
+		// 			tmp->parent->right = tmp->left;
+		// 		else
+		// 			tmp->parent->left = tmp->left;
+		// 		// tmp->parent->left = tmp->left;
+		// 		tmp->left->parent = tmp->parent;
+		// 	}
+		// 	else if (tmp->right) {
+		// 		if (tmp == tmp->parent->right)
+		// 			tmp->parent->right = tmp->right;
+		// 		else
+		// 			tmp->parent->left = tmp->right;
+		// 		// tmp->parent->right = tmp->right;
+		// 		tmp->right->parent = tmp->parent;
+		// 	}
+		// 	else {
+		// 		if (tmp == tmp->parent->right)
+		// 			tmp->parent->right = NULL;
+		// 		else
+		// 			tmp->parent->left = NULL;
+		// 	}
+		// 	_nal.destroy(tmp);
+		// 	_nal.deallocate(tmp, 1);
+		// 	_n--;
+		// 	return true;
 
-		}
+		// }
 
 		void clear() {
 			if (_n == 0)
 				return ;
-			iterator it = iterator(_begin->parent);
-			iterator end = iterator(_end);
-			while (it != end)
-				_erase_node((it++).getptr());
+			iterator it = begin();
+			while (it != end())
+				erase((it++)->first);
 			_root = NULL;
 			_begin->parent = NULL;
 			_end->parent = NULL;
@@ -388,10 +413,10 @@ class BST {
 			if (_comp(val.first, tmp->data.first)) {
 				if (tmp->left == NULL || tmp->left == _begin) {
 					_insert_node(tmp, 'l', val);
-					// ft::pair<iterator, bool> ret(iterator(tmp->left), true);
+					ft::pair<iterator, bool> ret(iterator(tmp->left), true);
 					_check_height(tmp, 'l');
-					// return ret;
-					return (ft::make_pair(iterator(tmp->left), true));
+					return ret;
+					// return (ft::make_pair(iterator(tmp->left), true));
 				}
 				else
 					return _insert(tmp->left, val);
@@ -399,10 +424,10 @@ class BST {
 			else if (_comp(tmp->data.first, val.first)) {
 				if (tmp->right == NULL || tmp->right == _end) {
 					_insert_node(tmp, 'r', val);
-					// ft::pair<iterator, bool> ret(iterator(tmp->right), true);
+					ft::pair<iterator, bool> ret(iterator(tmp->right), true);
 					_check_height(tmp, 'r');
-					// return ret;
-					return (ft::make_pair(iterator(tmp->right), true));
+					return ret;
+					// return (ft::make_pair(iterator(tmp->right), true));
 				}
 				else
 					return _insert(tmp->right, val);
@@ -432,11 +457,13 @@ class BST {
 
 		void _check_height (node_pointer tmp, char orientation) {
 			// std::cout << "start check height : tmp = " << tmp->data.first << ", height_left = " << tmp->height_l << ", height_right = " << tmp->height_r << std::endl;
-			if (orientation == 'l')
-				tmp->height_l = 1 + std::max(tmp->left->height_l, tmp->left->height_r);
-			else if (orientation == 'r')
-				tmp->height_r = 1 + std::max(tmp->right->height_l, tmp->right->height_r);
+			// if (orientation == 'l')
+			// 	tmp->height_l = 1 + std::max(tmp->left->height_l, tmp->left->height_r);
+			// else if (orientation == 'r')
+			// 	tmp->height_r = 1 + std::max(tmp->right->height_l, tmp->right->height_r);
 			update_height(tmp, orientation);
+			// (void)orientation;
+			// std::cout << "check height height updated : tmp = " << tmp->data.first << ", height_left = " << tmp->height_l << ", height_right = " << tmp->height_r << std::endl;
 			if (std::abs(tmp->height_l - tmp->height_r) > 1) {
 				tmp = _balance_tree(tmp);
 				return;
@@ -447,6 +474,22 @@ class BST {
 				_check_height(tmp->parent, 'l');
 			else if (tmp == tmp->parent->right)
 				_check_height(tmp->parent, 'r');
+		}
+
+		void update_height(node_pointer to_update, char orientation) {
+			(void)orientation;
+			// if (orientation == 'l') {
+				if (!to_update->left || to_update->left == _begin)
+					to_update->height_l = 0;
+				else
+					to_update->height_l = 1 + std::max(to_update->left->height_l, to_update->left->height_r);
+			// }
+			// else if (orientation == 'r') {
+				if (!to_update->right || to_update->right == _end)
+					to_update->height_r = 0;
+				else
+					to_update->height_r = 1 + std::max(to_update->right->height_l, to_update->right->height_r);
+			// }
 		}
 
 		node_pointer _balance_tree (node_pointer tmp) {
@@ -474,8 +517,10 @@ class BST {
 				node->left->parent = node;
 			node->parent = child;			// The parent of node become the child
 			child->right = node;	
-			child->height_r++;				// Mofify height for all nodes
-			node->height_l -= 2;
+			// child->height_r++;				// Mofify height for all nodes
+			// node->height_l -= 2;
+			update_height(node, 'l');
+			update_height(child, 'l');
 			return child;
 		}
 		node_pointer _left_right_balance (node_pointer node, node_pointer child, node_pointer gchild) {
@@ -491,10 +536,13 @@ class BST {
 			gchild->left = child;
 			node->parent = gchild;			// The parent of node become the grandchild
 			gchild->right = node;
-			gchild->height_l++;				// Mofify height for all nodes
-			gchild->height_r++;
-			child->height_r--;
-			node->height_l -= 2;
+			// gchild->height_l++;				// Mofify height for all nodes
+			// gchild->height_r++;
+			// child->height_r--;
+			// node->height_l -= 2;
+			update_height(node, 'l');
+			update_height(child, 'l');
+			update_height(gchild, 'l');
 			return gchild;
 		}
 		node_pointer _right_right_balance (node_pointer node, node_pointer child) {
@@ -505,8 +553,10 @@ class BST {
 				node->right->parent = node;
 			node->parent = child;			// The parent of node become the child
 			child->left = node;
-			child->height_l++;				// Mofify height for all nodes
-			node->height_r -= 2;
+			// child->height_l++;				// Mofify height for all nodes
+			// node->height_r -= 2;
+			update_height(node, 'l');
+			update_height(child, 'l');
 			return child;
 		}
 		node_pointer _right_left_balance (node_pointer node, node_pointer child, node_pointer gchild) {
@@ -522,10 +572,13 @@ class BST {
 			gchild->right = child;
 			node->parent = gchild;			// The parent of node become the grandchild
 			gchild->left = node;
-			gchild->height_r++;				// Mofify height for all nodes
-			gchild->height_l++;
-			child->height_l--;
-			node->height_r -= 2;
+			// gchild->height_r++;				// Mofify height for all nodes
+			// gchild->height_l++;
+			// child->height_l--;
+			// node->height_r -= 2;
+			update_height(node, 'l');
+			update_height(child, 'l');
+			update_height(gchild, 'l');
 			return gchild;
 		}
 
