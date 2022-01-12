@@ -10,7 +10,6 @@
 # include "equal.hpp"
 # include "lexicographical_compare.hpp"
 # include "vector_iterator.hpp"
-// # include "vector_reverse_iterator.hpp"
 # include "vector_reverse_iterator.hpp"
 
 template <typename C>

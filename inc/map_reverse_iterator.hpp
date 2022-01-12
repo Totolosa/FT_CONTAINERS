@@ -2,8 +2,6 @@
 # define MAP_REVERSE_ITERATOR_HPP
 
 # include <iostream>
-// # include "Node.hpp"
-// # include "BST.hpp"
 # include "iterator_traits.hpp"
 
 namespace ft {
@@ -19,28 +17,30 @@ namespace ft {
 			typedef typename iterator_traits<iterator_type>::reference			reference;
 			typedef typename iterator_traits<iterator_type>::iterator_category	iterator_category;
 			
-			map_reverse_iterator() : ptr(NULL) {} ;
-			map_reverse_iterator (iterator_type it) : ptr(it - 1) {}
+			map_reverse_iterator() : it(NULL) {} ;
+			map_reverse_iterator (iterator_type ite) : it(--ite) {}
 			template <class Iter>
-  			map_reverse_iterator (const map_reverse_iterator<Iter>& rev_it) : ptr(rev_it.base()) {}
+  			map_reverse_iterator (const map_reverse_iterator<Iter>& rev_it) : it(--rev_it.base()) {}
 
-			node_pointer getptr() const { return ptr; }
-			iterator_type base() const { return ptr + 1; }
+			iterator_type base() const { 
+				iterator_type ret = it;
+				return ++ret ; 
+			}
 
-			reference operator*() const { return ptr->data; }	
-			pointer operator->() const { return &(ptr->data); }	
+			reference operator*() const { return it.operator*(); }	
+			pointer operator->() const { return it.operator->(); }	
 			map_reverse_iterator & operator++() {
-				node_pointer tmp = ptr;
+				node_pointer tmp = it.getptr();
 				if (tmp->left) {
 					tmp = tmp->left;
 					while (tmp->right)
 						tmp = tmp->right;
-					ptr = tmp;
+					it = tmp;
 				}
 				else if (tmp->parent) {
 					while (tmp == tmp->parent->left)
 						tmp = tmp->parent;
-					ptr = tmp->parent;
+					it = tmp->parent;
 				}
 				return *this;
 			}
@@ -50,17 +50,17 @@ namespace ft {
 				return temp;
 			}
 			map_reverse_iterator & operator--() {
-				node_pointer tmp = ptr;
+				node_pointer tmp = it.getptr();
 				if (tmp->right) {
 					tmp = tmp->right;
 					while (tmp->left)
 						tmp = tmp->left;
-					ptr = tmp;
+					it = tmp;
 				}
 				else if (tmp->parent) {
 					while (tmp == tmp->parent->right)
 						tmp = tmp->parent;
-					ptr = tmp->parent;
+					it = tmp->parent;
 				}
 				return *this;
 			}
@@ -71,25 +71,25 @@ namespace ft {
 			}
 			template <typename V>
 			map_reverse_iterator & operator=(map_reverse_iterator<V> const & rhs) {
-				ptr = reinterpret_cast<map_reverse_iterator::node_pointer>(rhs.getptr());
-				// ptr = &*rhs;
+				it = reinterpret_cast<map_reverse_iterator::iterator_type>(rhs.base());
+				// it = &*rhs;
 				return *this;
 			}
 			// template <typename V>
-			// bool operator==(map_reverse_iterator<V> const & rhs) { return ptr == rhs.ptr; }
+			// bool operator==(map_reverse_iterator<V> const & rhs) { return it == rhs.it; }
 			// template <typename V>
-			// bool operator!=(map_reverse_iterator<V> const & rhs) { return ptr != rhs.ptr; }
+			// bool operator!=(map_reverse_iterator<V> const & rhs) { return it != rhs.it; }
 			template <typename V, typename W>
-			friend bool operator==(map_reverse_iterator<V> const & lhs, map_reverse_iterator<W> const & rhs) { return reinterpret_cast<map_reverse_iterator::node_pointer>(lhs.ptr) == reinterpret_cast<map_reverse_iterator::node_pointer>(rhs.ptr); }
+			friend bool operator==(map_reverse_iterator<V> const & lhs, map_reverse_iterator<W> const & rhs) { return lhs.it == rhs.it; }
 			template <typename V, typename W>
-			friend bool operator!=(map_reverse_iterator<V> const & lhs, map_reverse_iterator<W> const & rhs) { return reinterpret_cast<map_reverse_iterator::node_pointer>(lhs.ptr) != reinterpret_cast<map_reverse_iterator::node_pointer>(rhs.ptr); }
-			// bool operator==(map_reverse_iterator const & lhs, map_reverse_iterator const & rhs) { return lhs.ptr == rhs.ptr; }
-			// bool operator!=(map_reverse_iterator const & lhs, map_reverse_iterator const & rhs) { return lhs.ptr != rhs.ptr; }
-			// bool operator==(map_reverse_iterator const & rhs) const { return ptr == rhs.ptr; }
-			// bool operator!=(map_reverse_iterator const & rhs) const { return ptr != rhs.ptr; }
+			friend bool operator!=(map_reverse_iterator<V> const & lhs, map_reverse_iterator<W> const & rhs) { return lhs.it != rhs.it; }
+			// bool operator==(map_reverse_iterator const & lhs, map_reverse_iterator const & rhs) { return lhs.it == rhs.it; }
+			// bool operator!=(map_reverse_iterator const & lhs, map_reverse_iterator const & rhs) { return lhs.it != rhs.it; }
+			// bool operator==(map_reverse_iterator const & rhs) const { return it == rhs.it; }
+			// bool operator!=(map_reverse_iterator const & rhs) const { return it != rhs.it; }
 
 		protected:
-			node_pointer ptr;
+			iterator_type it;
 	};
 }
 

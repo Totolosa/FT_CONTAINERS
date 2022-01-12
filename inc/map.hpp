@@ -15,16 +15,6 @@
 # include "Node.hpp"
 # include "BST.hpp"
 
-// # include <map>
-
-template <typename C>
-void print_map_inside(C & cont) {
-	for (typename C::size_type i = 0; i < cont.size(); i++)
-		std::cout << cont[i] << "|";
-	std::cout << std::endl << "size = " << cont.size() << std::endl;
-	std::cout << "capacity = " << cont.capacity() << std::endl << std::endl;
-}
-
 namespace ft {
 	template <typename Key, typename T, typename Compare = std::less<Key>, typename Alloc = std::allocator<std::pair<const Key,T> > >
 	class map {
@@ -39,15 +29,11 @@ namespace ft {
 			typedef T												mapped_type;
 			typedef ft::pair<const Key, T>							value_type;
 			typedef Compare											key_compare;
-			// typedef 												value_compare;
 			typedef Alloc											allocator_type;
 			typedef typename Alloc::reference						reference;
 			typedef typename Alloc::const_reference					const_reference;
 			typedef typename Alloc::pointer							pointer;
-			// typedef value_type*										pointer;
 			typedef typename Alloc::const_pointer					const_pointer;
-			// typedef ft::map_iterator<ft::Node<value_type> >			iterator;
-			// typedef ft::map_iterator<const ft::Node<const value_type> >	const_iterator;
 			typedef ft::map_iterator<value_type>					iterator;
 			typedef ft::map_iterator<const value_type>				const_iterator;
 			typedef ft::map_reverse_iterator<iterator>				reverse_iterator;
@@ -55,7 +41,9 @@ namespace ft {
 			typedef typename Alloc::difference_type					difference_type;
 			typedef typename Alloc::size_type						size_type;
 
+
 			//		--> CONSTRUCTORS/DESTRUCTORS <--
+
 			explicit map (const key_compare& comp = key_compare(),
 				const allocator_type& alloc = allocator_type()) : _comp(comp), _alloc(alloc), _tree(_comp, _alloc) {}
 			template <class InputIterator>
@@ -65,6 +53,7 @@ namespace ft {
 			, const allocator_type& alloc = allocator_type()) : _comp(comp), _alloc(alloc), _tree(BST<value_type, key_type, key_compare, allocator_type>(first, last, _comp, _alloc)) {}
 			map (const map& x) : _comp(x._comp), _alloc(x._alloc), _tree(x._tree) {}
 			~map () {}
+
 
 			//		--> ITERATORS <--
 
@@ -76,6 +65,7 @@ namespace ft {
 			const_reverse_iterator rbegin() const { return reverse_iterator(_tree.end()); }
 			reverse_iterator rend() { return reverse_iterator(_tree.begin()); }
 			const_reverse_iterator rend() const { return reverse_iterator(_tree.begin()); }
+
 
 			//		--> MODIFIERS <--
 
@@ -89,14 +79,6 @@ namespace ft {
 				while (first != last)
 					insert(*(first++));
 			}
-			// template <class InputIterator>
-			// void insert(typename enable_if< (ft::is_same<InputIterator, pointer>::value 
-			// 	|| ft::is_same<InputIterator, const_pointer>::value || ft::is_same<InputIterator, iterator>::value
-			// 	|| ft::is_same<InputIterator, const_iterator>::value), InputIterator>::type first
-			// 	, InputIterator last) {
-			// 	while (first != last)
-			// 		insert(*(first++));
-			// }
 			void erase (iterator position) { _tree.erase(position->first); }
 			size_type erase (const key_type& k) { return _tree.erase(k); }
 			void erase (iterator first, iterator last) {
@@ -129,6 +111,7 @@ namespace ft {
 					bool operator() (const value_type& x, const value_type& y) const { return comp(x.first, y.first); }
 			};
 			value_compare value_comp() const { return value_compare(_comp); }
+			void print_tree() { return _tree.print_tree(); }
 
 
 			//		--> OPERATIONS <--
@@ -152,11 +135,9 @@ namespace ft {
 			//		--> OPERATORS <--
 
 			mapped_type& operator[] (const key_type& k) {
-				// std::cout << "k = " << k << std::endl;
 				return (insert(make_pair(k, mapped_type())).first)->second;
 			}
 			map& operator=(const map& x) {
-				// std::cout << "operator = map" << std::endl;
 				_comp = x._comp;
 				_alloc = x._alloc;
 				_tree = x._tree;
@@ -174,96 +155,9 @@ namespace ft {
 			friend bool operator<= (const map& lhs, const map& rhs) { return ((lhs < rhs) || (lhs == rhs)); }
 			friend bool operator>  (const map& lhs, const map& rhs) { return (!(lhs < rhs) && (lhs != rhs)); }
 			friend bool operator>= (const map& lhs, const map& rhs) { return !(lhs < rhs); }
-			// template <class T, class Alloc>
-			// bool operator== (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
-			// template <class T, class Alloc>
-			// bool operator!= (const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs);
 
 
-			void my_print() { return _tree.myprint(); }
-
-			void print_tree() {
-				// _tree._reset_limits();
-				int i = 0;
-				int tour = 0;
-				int space = pow(2, _tree.height(_tree.get_root()) - 1);
-				int vide = 0;
-				int v = 1;
-				int debug = 0;
-				std::queue<node_pointer> n;
-				node_pointer temp;
-				node_pointer temp_head = _tree.get_root();
-
-				n.push(temp_head);
-				node_pointer temp2;
-				for (int x = 0; x < space; x++) {
-					std::cout << " ";
-				}
-				while (!n.empty()) {
-					debug++;
-					temp = n.front();
-					n.pop();
-					if (temp->getKey() == '*')
-					std::cout << (char)(temp->getKey());
-					else
-					std::cout << (temp->getKey());
-					i++;
-					if (i != 0 && i == pow(2, tour) / 2)
-					std::cout << " ";
-
-					if (i == pow(2, tour)) {
-					if (v == 0) {
-
-						std::cout << "\n\n";
-						// _tree._assign_limits();
-						return;
-					}
-					std::cout << "\n";
-					for (int x = 0; x < space - pow(2, tour); x++) {
-						std::cout << " ";
-					}
-					tour++;
-					i = 0;
-					v = 0;
-					}
-					if (temp->getKey() == '*') {
-					pair<const char, int> p1('*', 0);
-					temp2 = _tree.get_allocator().allocate(1);
-					_tree.get_allocator().construct(temp2, ft::Node<value_type>(p1));
-					n.push(temp2);
-					temp2 = _tree.get_allocator().allocate(1);
-					_tree.get_allocator().construct(temp2, ft::Node<value_type>(p1));
-					n.push(temp2);
-					delete temp;
-					continue;
-					}
-					if (temp->left != 0) {
-					n.push(temp->left);
-					if (temp->getKey() != '*')
-						v++;
-					} else {
-					pair<const char, int> p1('*', 0);
-					temp2 = _tree.get_allocator().allocate(1);
-					_tree.get_allocator().construct(temp2, ft::Node<value_type>(p1));
-					n.push(temp2);
-					}
-					if (temp->right != 0) {
-					n.push(temp->right);
-					if (temp->getKey() != '*')
-						v++;
-					} else {
-					pair<const char, int> p1('*', 0);
-					temp2 = _tree.get_allocator().allocate(1);
-					_tree.get_allocator().construct(temp2, ft::Node<value_type>(p1));
-					n.push(temp2);
-					vide++;
-					}
-				}
-				std::cout << "\n";
-			}
-
-		
-		private :
+		protected :
 			Compare									_comp;
 			allocator_type							_alloc;
 			BST<value_type, Key, Compare, Alloc>	_tree;

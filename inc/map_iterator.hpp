@@ -3,15 +3,11 @@
 
 # include <iostream>
 # include "Node.hpp"
-// # include "BST.hpp"
 
 namespace ft {
 	template <typename T>
 	class map_iterator {
 		public :
-			// typedef T								node;
-			// typedef node*							node_pointer;
-			// typedef typename T::value_type			value_type;
 			typedef T 								value_type;
 			typedef ft::Node<value_type>			node;
 			typedef node*							node_pointer;
