@@ -28,6 +28,7 @@ namespace ft {
 			template <typename V>
 			// map_iterator(map_iterator<typename ft::enable_if<(std::is_const<value_type>::value || !std::is_const<V>::value), V >::type> const & src) { *this = src; }
 			map_iterator(map_iterator<V> const & src) { *this = src; }
+			~map_iterator() {}
 
 			node_pointer getptr() const { return ptr; }
 

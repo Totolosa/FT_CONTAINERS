@@ -21,6 +21,7 @@ namespace ft {
 			map_reverse_iterator (iterator_type ite) : it(--ite) {}
 			template <class Iter>
   			map_reverse_iterator (const map_reverse_iterator<Iter>& rev_it) : it(--rev_it.base()) {}
+			~map_reverse_iterator() {}
 
 			iterator_type base() const { 
 				iterator_type ret = it;

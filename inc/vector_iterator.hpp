@@ -13,10 +13,11 @@ namespace ft {
 			typedef value_type&						reference;
 			typedef std::random_access_iterator_tag	iterator_category;
 
-			vector_iterator() : ptr(NULL) {} ;
-			vector_iterator(pointer const & ptr) : ptr(ptr) {} ;
+			vector_iterator() : ptr(NULL) {}
+			vector_iterator(pointer const & ptr) : ptr(ptr) {}
 			template <typename V>
-			vector_iterator(vector_iterator<V> const & src) { *this = src; } ;
+			vector_iterator(vector_iterator<V> const & src) { *this = src; }
+			~vector_iterator() {}
 			
 			reference operator*() const { return *ptr; }	
 			pointer operator->() const { return ptr; }	
@@ -64,12 +65,19 @@ namespace ft {
 				return *this;
 			}
 			reference operator[](int const & val) { return *(ptr + val); }
-			friend bool operator==(vector_iterator const & lhs, vector_iterator const & rhs) { return lhs.ptr == rhs.ptr; }
-			friend bool operator!=(vector_iterator const & lhs, vector_iterator const & rhs) { return lhs.ptr != rhs.ptr; }
-			friend bool operator>(vector_iterator const & lhs, vector_iterator const & rhs) { return lhs.ptr > rhs.ptr;  }
-			friend bool operator>=(vector_iterator const & lhs, vector_iterator const & rhs) { return lhs.ptr >= rhs.ptr; }
-			friend bool operator<(vector_iterator const & lhs, vector_iterator const & rhs) { return lhs.ptr < rhs.ptr;  }
-			friend bool operator<=(vector_iterator const & lhs, vector_iterator const & rhs) { return lhs.ptr <= rhs.ptr; }
+			template <typename V, typename W>
+			friend bool operator==(vector_iterator<V> const & lhs, vector_iterator<W> const & rhs) { return lhs.ptr == rhs.ptr; }
+			// friend bool operator==(vector_iterator const & lhs, vector_iterator const & rhs) { return lhs.ptr == rhs.ptr; }
+			template <typename V, typename W>
+			friend bool operator!=(vector_iterator<V> const & lhs, vector_iterator<W> const & rhs) { return lhs.ptr != rhs.ptr; }
+			template <typename V, typename W>
+			friend bool operator>(vector_iterator<V> const & lhs, vector_iterator<W> const & rhs) { return lhs.ptr > rhs.ptr;  }
+			template <typename V, typename W>
+			friend bool operator>=(vector_iterator<V> const & lhs, vector_iterator<W> const & rhs) { return lhs.ptr >= rhs.ptr; }
+			template <typename V, typename W>
+			friend bool operator<(vector_iterator<V> const & lhs, vector_iterator<W> const & rhs) { return lhs.ptr < rhs.ptr;  }
+			template <typename V, typename W>
+			friend bool operator<=(vector_iterator<V> const & lhs, vector_iterator<W> const & rhs) { return lhs.ptr <= rhs.ptr; }
 			friend vector_iterator operator+(difference_type n, vector_iterator const & rhs) { return vector_iterator(rhs.ptr + n); }
 
 		protected:

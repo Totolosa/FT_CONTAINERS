@@ -105,6 +105,7 @@ namespace ft {
 					Compare comp;
 					value_compare (Compare c) : comp(c) {}
 				public:
+					~value_compare() {};
 					typedef bool result_type;
 					typedef value_type first_argument_type;
 					typedef value_type second_argument_type;

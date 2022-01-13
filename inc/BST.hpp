@@ -319,7 +319,7 @@ class BST {
 		}
 
 
-		//		--> BALANCE TREE <--
+		//		--> AVL BALANCE TREE <--
 
 		void _check_height (node_pointer tmp) {
 			update_height(tmp);

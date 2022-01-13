@@ -41,6 +41,7 @@ namespace ft {
 			typedef typename Alloc::difference_type				difference_type;
 			typedef typename Alloc::difference_type				size_type;
 
+
 			//		--> CONSTRUCTORS/DESTRUCTORS <--
 
 			explicit vector(const allocator_type& alloc = allocator_type()) : _n(0), _capacity(0), _alloc(alloc), _v(NULL) {}
@@ -65,6 +66,7 @@ namespace ft {
 				_alloc.deallocate(_v, _capacity);
 			}
 
+
 			//		--> ITERATORS <--
 
 			iterator		begin() { return iterator(&_v[0]); }
@@ -76,6 +78,7 @@ namespace ft {
 			reverse_iterator rend() { return reverse_iterator(begin()); }
 			const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
 			
+
 			//		--> CAPACITY <--
 
 			size_type	size() const { return _n; }
@@ -98,6 +101,7 @@ namespace ft {
 				}
 				_n = n;
 			}
+
 
 			//		--> MODIFIERS <--
 
@@ -189,6 +193,7 @@ namespace ft {
 			}
 			void clear() { destroy(0, _n); }
 
+
 			//		--> ACCESS <--
 
 			reference at (size_type n) {
@@ -206,8 +211,11 @@ namespace ft {
 			reference back() { return _v[_n - 1]; }
 			const_reference back() const { return _v[_n - 1]; }
 
+
 			//		--> ALLOCATOR <--
+
 			allocator_type get_allocator() const { return _alloc; }
+
 
 			//		--> OPERATORS <--
 
@@ -241,7 +249,7 @@ namespace ft {
 			friend bool operator>  (const vector& lhs, const vector& rhs) { return (!(lhs < rhs) && (lhs != rhs)); }
 			friend bool operator>= (const vector& lhs, const vector& rhs) { return !(lhs < rhs); }
 
-			friend void swap(vector & x, vector & y) { x.swap(y); }
+			// friend void swap(vector & x, vector & y) { x.swap(y); }
 
 		private:
 			size_type		_n;

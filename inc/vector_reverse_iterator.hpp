@@ -19,11 +19,10 @@ namespace ft {
 			vector_reverse_iterator (iterator_type it) : it(it - 1) {}
 			template <class Iter>
   			vector_reverse_iterator (const vector_reverse_iterator<Iter>& rev_it) : it(rev_it.base()) {}
+			~vector_reverse_iterator() {}
 
 			iterator_type base() const { return it + 1; }
 
-			// reference operator*() const { return const_cast<reference>(*it); }
-			// pointer operator->() const { return const_cast<pointer>(&*it); }
 			reference operator*() const { return *it; }
 			pointer operator->() const { return &*it; }
 			vector_reverse_iterator & operator++() {
@@ -60,6 +59,7 @@ namespace ft {
 				return *this;
 			}
 			reference operator[](int const & val) const { return *(it - val); }
+			
 			friend bool operator==(vector_reverse_iterator const & lhs, vector_reverse_iterator const & rhs) { return lhs.it == rhs.it; }
 			friend bool operator!=(vector_reverse_iterator const & lhs, vector_reverse_iterator const & rhs) { return lhs.it != rhs.it; }
 			friend bool operator>(vector_reverse_iterator const & lhs, vector_reverse_iterator const & rhs) { return lhs.it < rhs.it;  }

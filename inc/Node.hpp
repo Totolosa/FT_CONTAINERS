@@ -9,12 +9,11 @@ namespace ft {
 		typedef T			value_type;
 
 		T			data;		// data
-		Node		*left;			// left child
-		Node		*right;			// right child
-		Node		*parent;			// parent
+		Node		*left;		// left child
+		Node		*right;		// right child
+		Node		*parent;	// parent
 		int			height_l;	// height left subtree
 		int			height_r;	// height right subtree
-		// int			b;			// -1 = begin, 0 = node , 1 = end
 
 		Node () : data(T()), left(NULL), right(NULL), parent(NULL), height_l(0), height_r(0) {}
 		Node (T const & val) : data(val), left(NULL), right(NULL), parent(NULL), height_l(0), height_r(0) {}
@@ -27,12 +26,7 @@ namespace ft {
 
 		int getKey() const {return data.first; }
 
-		Node & operator=(Node const & src) {
-			data = src.data;
-			// left = src.left;
-			// right = src.right;
-			// parent = src.parent;
-		}
+		Node & operator=(Node const & src) { data = src.data; }
 	};
 }
 
